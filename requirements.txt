@@ -1,0 +1,27 @@
+# Core LangChain + Google LLM
+langchain
+langchain-core
+langchain-google-genai
+google-ai-generativelanguage
+
+
+# Environment variable management
+python-dotenv
+
+
+# PDF extraction
+PyMuPDF
+
+
+# API framework
+fastapi
+uvicorn
+
+
+# Data validation and schema
+pydantic
+
+python-dateutil
+motor
+cloudinary
+python-multiport

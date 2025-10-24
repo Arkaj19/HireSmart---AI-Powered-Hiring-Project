@@ -1,0 +1,74 @@
+.env
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environment
+.venv/
+myvenv/
+
+# --- ENVIRONMENT FILES ---
+.env
+*.env
+
+# --- PYTHON IGNORE RULES ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+myvenv/
+
+# Byte-compiled / optimized / DLL files
+*.pyo
+*.pyd
+*.pdb
+
+# --- NODE / REACT FRONTEND IGNORE RULES ---
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+Frontend/node_modules/
+
+# Build output
+Frontend/dist/
+Frontend/dist-ssr/
+
+# Local environment files
+Frontend/*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- OTHER COMMON ---
+# OS-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- BACKEND / PROJECT-SPECIFIC ---
+# Cache
+__pycache__/
+*.sqlite3
+
+# Ignore package lock from frontend if desired
+Frontend/package-lock.json
