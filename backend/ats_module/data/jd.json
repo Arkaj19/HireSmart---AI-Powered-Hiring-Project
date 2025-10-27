@@ -4,27 +4,44 @@
     "title": "Data Engineer",
     "skills": ["Python", "SQL", "ETL", "AWS", "Big Data", "Spark", "Data Pipelines", "Airflow"],
     "keywords": ["Data Engineer", "cloud", "pipelines", "analytics", "data processing", "database"],
-    "min_experience_months": 18
+    "min_experience_months": 1.5
   },
   {
     "id": 2,
     "title": "ML Engineer",
     "skills": ["Python", "ML", "Machine Learning", "PyTorch", "TensorFlow", "Deep Learning", "AI", "Scikit-learn", "NLP", "Computer Vision", "GenAI"],
     "keywords": ["Machine Learning", "AI", "ML Engineer", "data science", "deep learning", "model deployment", "MLOps"],
-    "min_experience_months": 24
+    "min_experience_months": 2
   },
   {
   "id": 3,
   "title": ".NET Backend Developer",
   "skills": ["C#", ".NET Core", "ASP.NET", "Web API", "SQL Server", "Entity Framework", "Azure", "Microservices", "REST APIs", "Docker"],
   "keywords": [".NET Developer", "backend", "C#", "ASP.NET", "API development", "SQL Server", "cloud services", "microservices architecture"],
-  "min_experience_months": 12
+  "min_experience_months": 1
 },
 {
   "id": 4,
-  "title": "HR Manager",
-  "skills": ["Recruitment", "Employee Relations", "Performance Management", "HRIS", "Talent Acquisition", "Onboarding", "Compensation & Benefits", "HR Policies", "Training & Development"],
-  "keywords": ["Human Resources", "HR", "recruitment", "talent management", "employee engagement", "hiring", "workforce planning", "HR operations"],
-  "min_experience_months": 10
+  "title": "SAP Developer",
+  "skills": [
+    "SAP ABAP",
+    "OData Services",
+    "CDS Views",
+    "BAPIs",
+    "BADIs",
+    "Enhancements",
+    "Debugging",
+    "Performance Optimization"
+  ],
+  "keywords": [
+    "S/4HANA",
+    "SAP Integration",
+    "PI/PO",
+    "CPI",
+    "FICO",
+    "MM",
+    "Agile",
+    "SAP Certification"
+  ],
+  "min_experience_months": 2
 }
-]
