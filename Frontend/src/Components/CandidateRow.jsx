@@ -1,7 +1,9 @@
 import { Send, XCircle, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Info } from "lucide-react"
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 export default function CandidateRow({ candidate }) {
   const getActionButton = (status) => {
@@ -92,7 +94,22 @@ export default function CandidateRow({ candidate }) {
 
       {/* Status */}
       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
+        <div className='flex items-center gap-2'>
         {getStatusBadge(candidate.status)}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className='text-gray-500 hover:text-gray-800 transition'>
+              <Info className='w-4 h-4'/>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64">
+             <p className="text-sm font-medium mb-1">Reason:</p>
+              <p className="text-sm text-gray-700">
+                {candidate.reason ? candidate.reason : "No reason provided."}
+              </p>
+          </PopoverContent>
+        </Popover>
+        </div>
       </TableCell>
 
       {/* Resume */}

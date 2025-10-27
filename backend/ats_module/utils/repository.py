@@ -82,7 +82,8 @@ class ApplicantRepository:
                 "resumeUrl": doc.get("resumeFileUrl", ""),
                 "testSent": doc.get("testSent", False),
                 "rejectionSent": doc.get("rejectionSent", False),
-                "match_score": doc.get("match_result", {}).get("match_score", 0)
+                "match_score": doc.get("match_result", {}).get("match_score", 0),
+                "reason": doc.get("match_result", {}).get("reasoning", "")
             }
             candidates.append(candidate)
 
