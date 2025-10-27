@@ -5,7 +5,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 export default function CandidateRow({ candidate }) {
   const getActionButton = (status) => {
-    if (status === 'Selected') {
+    if (status === 'Shortlisted') {
       return (
         <Button className="bg-blue-500 hover:bg-blue-600 text-white">
           <Send className="w-4 h-4 mr-2" />
@@ -30,7 +30,7 @@ export default function CandidateRow({ candidate }) {
   };
 
   const getStatusBadge = (status) => {
-    if (status === 'Selected') {
+    if (status === 'Shortlisted') {
       return (
         <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
           {status}

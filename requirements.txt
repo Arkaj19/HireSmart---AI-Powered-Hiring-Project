@@ -24,4 +24,4 @@ pydantic
 python-dateutil
 motor
 cloudinary
-python-multiport
+python-multipart

@@ -1,101 +1,3 @@
-# import json
-# from ats_module.models.resume_model import Resume
-# from ats_module.models.jd_model import JobDescription
-# from ats_module.models.ats_model import MatchResult
-# from langchain_google_genai import ChatGoogleGenerativeAI
-# from langchain_core.prompts import ChatPromptTemplate
-# import os
-# from dotenv import load_dotenv
-
-# load_dotenv()
-
-# # ------------------ LLM Model ------------------
-# model = ChatGoogleGenerativeAI(
-#     model='gemini-2.5-flash',
-#     google_api_key=os.getenv('GEMINI_API_KEY')
-# )
-
-# # ------------------ JD Loader ------------------
-# def load_jd(position: str) -> JobDescription:
-#     """
-#     Loads the JD for a given position from data/jd.json.
-#     """
-#     jd_path = os.path.join(os.path.dirname(__file__), "..", "data", "jd.json")
-#     with open(jd_path, "r") as f:
-#         jd_data = json.load(f)
-
-#     for jd_dict in jd_data:
-#         if jd_dict["title"].lower() == position.lower():
-#             return JobDescription(**jd_dict)  # Convert dict -> Pydantic model
-
-#     raise ValueError(f"No JD found for position '{position}'")
-
-
-# # ------------------ Compare Resume vs JD ------------------
-# def compare_resume_with_jd(resume: Resume, position: str) -> MatchResult:
-#     jd = load_jd(position)
-
-#     prompt_template = ChatPromptTemplate.from_template("""
-#     Compare the following resume details with the job description.
-
-#     Job Description:
-#     {jd}
-
-#     Resume Details:
-#     {resume}
-
-#     Analyze the skill match, relevant experience, and suitability.
-#     Return valid JSON with:
-#     - match_score (0-100)
-#     - matched_skills
-#     - missing_skills
-#     - suitability (Selected/Rejected)
-#     - reasoning
-#     """)
-
-#     chain = prompt_template | model
-#     response = chain.invoke({
-#         "jd": jd.model_dump_json(),      # Correct usage with JobDescription
-#         "resume": resume.model_dump_json()
-#     })
-
-#     # --- Parse LLM response safely ---
-#     try:
-#         if hasattr(response, "content"):
-#             parsed = json.loads(response.content)
-#         else:
-#             parsed = json.loads(str(response))
-#     except Exception as e:
-#         print(f"[Warning] Parsing LLM response failed: {e}")
-#         parsed = {
-#             "match_score": 50,
-#             "matched_skills": resume.skills[:3],
-#             "missing_skills": [],
-#             "suitability": "Fallback",
-#             "reasoning": "Fallback scoring used."
-#         }
-
-#     # Blend with in-house scoring
-#     final_score = evaluate_candidate(resume, jd, parsed["match_score"])
-#     parsed["match_score"] = int(round(final_score))
-
-
-#     # Map suitability to Selected/Rejected
-#     parsed["suitability"] = "Selected" if final_score >= 40 else "Rejected"
-
-#     return MatchResult(**parsed)
-
-
-# # ------------------ In-house evaluation ------------------
-# def evaluate_candidate(resume: Resume, jd: JobDescription, llm_score: float) -> float:
-#     required_skills = jd.skills
-#     skill_overlap = len(set(resume.skills) & set(required_skills))
-#     total_skills = len(required_skills) or 1
-#     skill_score = (skill_overlap / total_skills) * 100
-
-#     # Weighted average: 70% LLM score, 30% rule-based
-#     final_score = (0.7 * llm_score) + (0.3 * skill_score)
-#     return round(final_score, 2)
 import json
 import re
 from ats_module.models.resume_model import Resume
@@ -336,7 +238,7 @@ def determine_suitability(final_score: float, resume: Resume, jd: JobDescription
     - <50: Rejection
     """
     if final_score >= 70:
-        return "Selected"
+        return "Shortlisted"
     elif final_score >= 50:
         # Secondary check: Must have minimum core skills
         matched_skills, overlap_count = calculate_skill_overlap(resume.skills, jd.skills)
@@ -344,7 +246,7 @@ def determine_suitability(final_score: float, resume: Resume, jd: JobDescription
         skill_match_percentage = (overlap_count / total_skills) * 100
         
         if skill_match_percentage >= 60:
-            return "Selected"
+            return "Shortlisted"
         else:
             return "Rejected"
     else:
