@@ -47,7 +47,7 @@ async def upload_resume(
         try:
             upload_result = await upload_file(
             file_bytes=file_bytes,
-            file_name=file.filename,  # ✅ Pass original filename
+            file_name=file.filename,
             folder="resumes"
         )
             resume_url = upload_result["secure_url"]
@@ -59,6 +59,20 @@ async def upload_resume(
 
         # Parse resume with LLM
         parsed_resume = parse_resume(file_bytes)  # returns Resume object
+
+        # # ✅ DEBUG: Print the experience value to console
+        print("=" * 50)
+        print("DEBUG - PARSED RESUME EXPERIENCE:")
+        print(f"Candidate Name: {parsed_resume.name}")
+        print(f"Total Experience: {parsed_resume.total_experience} years")  # Changed to total_experience
+        print(f"Experience Type: {type(parsed_resume.total_experience)}")
+        print(f"Work Experience entries: {len(parsed_resume.experience)}")
+
+        # If work experience exists, print details
+        if parsed_resume.experience:
+            for i, exp in enumerate(parsed_resume.experience):
+                print(f"  Work {i+1}: {exp.company} - {exp.role} - {exp.duration}")
+        print("=" * 50)  
 
         # Save to MongoDB
         candidate_id = await repo.add_candidate(

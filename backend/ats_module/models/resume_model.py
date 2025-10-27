@@ -20,3 +20,4 @@ class Resume(BaseModel):
     skills: List[str]
     education: List[Education]
     experience: List[Experience]
+    total_experience: Optional[float] = None  # Add this for calculated total in years
