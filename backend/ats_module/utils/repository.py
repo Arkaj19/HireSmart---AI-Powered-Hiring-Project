@@ -64,19 +64,22 @@ class ApplicantRepository:
             doc["_id"] = str(doc["_id"])
 
             # Calculate relevant experience in months
-            experience_list = doc.get("resume", {}).get("experience", [])
-            total_months = 0
-            for exp in experience_list:
-                duration = exp.get("duration", "")
-                months = ApplicantRepository.parse_duration_to_months(duration)
-                total_months += months
+            # experience_list = doc.get("resume", {}).get("experience", [])
+            # total_months = 0
+            # for exp in experience_list:
+            #     duration = exp.get("duration", "")
+            #     months = ApplicantRepository.parse_duration_to_months(duration)
+            #     total_months += months
+            resume_data = doc.get("resume", {})
+            total_experience_years = resume_data.get("total_experience", 0)
 
             candidate = {
                 "id": doc["_id"],
                 "name": doc.get("resume", {}).get("name", ""),
                 "email": doc.get("resume", {}).get("email", ""),
                 "position": doc.get("position", ""),
-                "experience": round(total_months / 12, 2),  # in years
+                # "experience": round(total_months / 12, 2),  # in years
+                "experience": total_experience_years,
                 "appliedDate": doc.get("appliedDate", ""),
                 "status": doc.get("match_result", {}).get("suitability", ""),
                 "resumeUrl": doc.get("resumeFileUrl", ""),
