@@ -1,4 +1,4 @@
-import { Send, XCircle, FileText } from 'lucide-react';
+import { Send, XCircle, FileText, AlertTriangle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Info } from "lucide-react"
@@ -55,6 +55,11 @@ export default function CandidateRow({ candidate }) {
     }
   }
 
+  // Determine popover style based on status (e.g., a rejected candidate)
+  const isRejected = candidate.status === 'Rejected';
+  const accentColor = isRejected ? 'border-red-500' : 'border-gray-300';
+  const HeaderIcon = isRejected ? AlertTriangle : Info;
+
   return (
     <TableRow className="hover:bg-gray-50 transition-colors">
       {/* Name */}
@@ -98,15 +103,28 @@ export default function CandidateRow({ candidate }) {
         {getStatusBadge(candidate.status)}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className='text-gray-500 hover:text-gray-800 transition'>
+            <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent'>
               <Info className='w-4 h-4'/>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64">
-             <p className="text-sm font-medium mb-1">Reason:</p>
-              <p className="text-sm text-gray-700">
-                {candidate.reason ? candidate.reason : "No reason provided."}
-              </p>
+          <PopoverContent 
+            className={`w-80 p-0 border-t-4 ${accentColor} shadow-lg rounded-md`} 
+            align="start" // Align to start for better visibility
+          >
+            <div className='p-4'>
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-3">
+                <HeaderIcon className={`w-5 h-5 ${isRejected ? 'text-red-500' : 'text-blue-500'} flex-shrink-0`} />
+                <h4 className="text-base font-semibold text-gray-900">
+                  {isRejected ? "Rejection Reason" : "Status Details"}
+                </h4>
+              </div>
+
+              {/* Body */}
+              <div className="text-sm text-gray-700 leading-relaxed max-h-48 overflow-y-auto pr-2">
+                {candidate.reason ? candidate.reason : "No reason or detailed feedback has been provided for this status."}
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
         </div>
