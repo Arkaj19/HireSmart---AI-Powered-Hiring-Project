@@ -26,7 +26,7 @@ export default function CandidateRow({ candidate }) {
     }
     // For "Sent" status
     return (
-      <Button className="bg-blue-300 hover:bg-blue-400 text-white cursor-not-allowed cursor-pointer" disabled>
+      <Button className="bg-blue-300 hover:bg-blue-400 text-white cursor-pointer" disabled>
         <Send className="w-4 h-4 mr-2" />
         Sent
       </Button>
