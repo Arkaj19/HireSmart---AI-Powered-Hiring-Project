@@ -4,19 +4,21 @@ import { Badge } from "@/components/ui/badge";
 import { Info } from "lucide-react"
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { toast } from "@/components/ui/use-toast";
 
 export default function CandidateRow({ candidate }) {
   const getActionButton = (status) => {
     if (status === 'Shortlisted') {
       return (
-        <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+        <Button className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer">
           <Send className="w-4 h-4 mr-2" />
           Send Test
         </Button>
       );
     } else if (status === 'Rejected') {
       return (
-        <Button className="bg-red-500 hover:bg-red-600 text-white">
+        <Button className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+        onClick = {() => handleSendRejection(candidate)}>
           <XCircle className="w-4 h-4 mr-2" />
           Send Rejection
         </Button>
@@ -24,7 +26,7 @@ export default function CandidateRow({ candidate }) {
     }
     // For "Sent" status
     return (
-      <Button className="bg-blue-300 hover:bg-blue-400 text-white cursor-not-allowed" disabled>
+      <Button className="bg-blue-300 hover:bg-blue-400 text-white cursor-not-allowed cursor-pointer" disabled>
         <Send className="w-4 h-4 mr-2" />
         Sent
       </Button>
@@ -59,6 +61,41 @@ export default function CandidateRow({ candidate }) {
   const isRejected = candidate.status === 'Rejected';
   const accentColor = isRejected ? 'border-red-500' : 'border-gray-300';
   const HeaderIcon = isRejected ? AlertTriangle : Info;
+
+  const handleSendRejection = async (candidate) => {
+  try {
+    const response = await fetch("http://localhost:8000/send-rejection-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: candidate.email,
+        name: candidate.name,
+        position: candidate.position,
+      }),
+    });
+
+    if (response.ok) {
+      toast({
+        title: "Rejection Email Sent",
+        description: `An email was successfully sent to ${candidate.name}.`,
+        variant: "success",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to send rejection email.",
+        variant: "destructive",
+      });
+    }
+  } catch (error) {
+    toast({
+      title: "Server Error",
+      description: "Something went wrong while sending the email.",
+      variant: "destructive",
+    });
+  }
+};
+
 
   return (
     <TableRow className="hover:bg-gray-50 transition-colors">
@@ -103,7 +140,7 @@ export default function CandidateRow({ candidate }) {
         {getStatusBadge(candidate.status)}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent'>
+            <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent cursor-pointer'>
               <Info className='w-4 h-4'/>
             </Button>
           </PopoverTrigger>
@@ -134,7 +171,7 @@ export default function CandidateRow({ candidate }) {
       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
         <Button 
           variant="ghost" 
-          className="h-auto p-0 text-gray-700 hover:text-blue-600 hover:bg-transparent font-normal"
+          className="h-auto p-0 text-gray-700 hover:text-blue-600 hover:bg-transparent font-normal cursor-pointer"
           onClick={handleViewResumes}
           disabled={!candidate.resumeUrl}
         >

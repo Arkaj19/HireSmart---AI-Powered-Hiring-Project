@@ -5,6 +5,8 @@ from ats_module.utils.db import connect_to_mongo, disconnect_from_mongo
 from ats_module.utils.resume_processor import parse_resume
 from ats_module.utils.repository import ApplicantRepository
 from ats_module.utils.cloudinary_upload import upload_file
+from ats_module.utils.email_service import send_rejection_email
+from ats_module.models.rejection_email_model import RejectionRequest
 
 # --- Startup / Shutdown events ---
 @asynccontextmanager
@@ -103,3 +105,13 @@ async def get_all_candidates():
         return candidates
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Repository error: {e}")
+
+
+@app.post("/send-rejection-email")
+async def send_rejection_email_api(request: RejectionRequest):
+    success = await send_rejection_email(request.email, request.name, request.position)
+    
+    if success:
+        return {"message": f"Rejection email sent successfully to {request.email}"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to send rejection email.")

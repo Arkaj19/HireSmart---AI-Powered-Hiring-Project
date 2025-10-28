@@ -2,6 +2,7 @@ import {useState} from "react"
 import Header from "./Components/Header.jsx";
 import Body from "./Components/Body.jsx";
 import Footer from "./Components/Footer.jsx";
+import { Toaster } from "@/components/ui/toaster";
 
 function App(){
   const [activeTab,setActiveTab]=useState("candidates")
@@ -12,6 +13,7 @@ function App(){
         <Body activeTab={activeTab} />
       </div>
       <Footer />
+      <Toaster />
     </div>
   )
 }
