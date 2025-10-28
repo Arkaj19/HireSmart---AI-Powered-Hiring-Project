@@ -114,7 +114,7 @@ export default function CandidateRow({ candidate }) {
             <div className='p-4'>
               {/* Header */}
               <div className="flex items-center gap-2 mb-3">
-                <HeaderIcon className={`w-5 h-5 ${isRejected ? 'text-red-500' : 'text-blue-500'} flex-shrink-0`} />
+                <HeaderIcon className={`w-5 h-5 ${isRejected ? 'text-red-500' : 'text-blue-500'} shrink-0`} />
                 <h4 className="text-base font-semibold text-gray-900">
                   {isRejected ? "Rejection Reason" : "Status Details"}
                 </h4>
