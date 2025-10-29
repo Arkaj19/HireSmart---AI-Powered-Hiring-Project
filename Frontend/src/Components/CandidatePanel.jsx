@@ -6,7 +6,8 @@ import {useCandidateData} from "../hooks/useCandidateData"
 
 export default function CandidatePanel() {
 
-    const {candidates}=useCandidateData()
+    // const {candidates}=useCandidateData()
+    const {candidates,setCandidates}=useCandidateData()
 
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("")
@@ -37,7 +38,7 @@ export default function CandidatePanel() {
                     setStatusFilter={setStatusFilter} />
 
                 {/* Table */}
-                <CandidateTable candidates={filteredCandidates} />
+                <CandidateTable candidates={filteredCandidates} setCandidates={setCandidates}/>
             </div>
         </div>
     );

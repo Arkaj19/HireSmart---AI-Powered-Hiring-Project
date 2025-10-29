@@ -5,16 +5,39 @@ import { Info } from "lucide-react"
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from "@/components/ui/use-toast";
+import { useState } from 'react';
 
-export default function CandidateRow({ candidate }) {
-  const getActionButton = (status) => {
-    if (status === 'Shortlisted') {
+export default function CandidateRow({ candidate, setCandidates }) {
+  const [isSending, setIsSending] = useState(false);
+  const getActionButton = (status, rejectionSent) => {
+    if (candidate.testSent) {
       return (
-        <Button className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer">
-          <Send className="w-4 h-4 mr-2" />
-          Send Test
+        <Button className="bg-[#caf0f8] text-[#0077b6] font-semibold cursor-not-allowed border border-[#90e0ef]" disabled>
+          <Send className="w-4 h-4 mr-2 text-[#0077b6]" />
+          Test Sent
         </Button>
       );
+    }
+    if(rejectionSent){
+      return(
+        <Button className="bg-[#fde8e8] text-[#b91c1c] font-semibold border border-[#fca5a5] cursor-not-allowed" disabled>
+          <XCircle className="w-4 h-4 mr-2 text-[#b91c1c]" />
+          Rejection Sent
+        </Button>
+      )
+    }
+
+  if (status === 'Shortlisted') {
+    return (
+      <Button 
+        className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+        onClick={() => handleSendShortlist(candidate)}
+        disabled={isSending}
+      >
+        <Send className="w-4 h-4 mr-2" />
+        {isSending ? "Sending..." : "Send Test"}
+      </Button>
+    );
     } else if (status === 'Rejected') {
       return (
         <Button className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
@@ -62,8 +85,12 @@ export default function CandidateRow({ candidate }) {
   const accentColor = isRejected ? 'border-red-500' : 'border-gray-300';
   const HeaderIcon = isRejected ? AlertTriangle : Info;
 
-  const handleSendRejection = async (candidate) => {
+const handleSendRejection = async (candidate) => {
+  console.log("🔵 Starting handleSendRejection");
+  
   try {
+    console.log("📤 Sending fetch request...");
+    
     const response = await fetch("http://localhost:8000/send-rejection-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,23 +98,48 @@ export default function CandidateRow({ candidate }) {
         email: candidate.email,
         name: candidate.name,
         position: candidate.position,
+        candidate_id: candidate.id,
       }),
     });
 
-    if (response.ok) {
-      toast({
-        title: "Rejection Email Sent",
-        description: `An email was successfully sent to ${candidate.name}.`,
-        variant: "success",
-      });
-    } else {
+    console.log("📥 Response received:", response.status, response.ok);
+    console.log("📥 Response headers:", response.headers);
+
+    const data = await response.json();
+    console.log("📦 Data parsed:", data);
+
+    if (!response.ok) {
+      console.log("❌ Response not OK, showing error toast");
       toast({
         title: "Error",
-        description: "Failed to send rejection email.",
+        description: data.detail || "Failed to send rejection email.",
         variant: "destructive",
       });
+      return;
     }
+
+    console.log("✅ Success! Showing success toast");
+    toast({
+      title: "Rejection Email Sent",
+      description: `An email was successfully sent to ${candidate.name}.`,
+      variant: "success"
+    });
+
+    console.log("🔄 Updating candidates state");
+    setCandidates((prev) =>
+      prev.map((c) =>
+        c.id === candidate.id ? { ...c, rejectionSent: true } : c
+      )
+    );
+    
+    console.log("✅ handleSendRejection completed successfully");
+    
   } catch (error) {
+    console.error("💥 CAUGHT ERROR:", error);
+    console.error("💥 Error type:", error.constructor.name);
+    console.error("💥 Error message:", error.message);
+    console.error("💥 Error stack:", error.stack);
+    
     toast({
       title: "Server Error",
       description: "Something went wrong while sending the email.",
@@ -95,6 +147,58 @@ export default function CandidateRow({ candidate }) {
     });
   }
 };
+
+const handleSendShortlist = async (candidate) => {
+  if (isSending) return;
+  
+  setIsSending(true);
+  
+  try {
+    const response = await fetch("http://localhost:8000/send-shortlist-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: candidate.email,
+        name: candidate.name,
+        position: candidate.position,
+        candidate_id: candidate.id,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      toast({
+        title: "Error",
+        description: data.detail || "Failed to send shortlist email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Shortlist Email Sent",
+      description: `A shortlist email was successfully sent to ${candidate.name}.`,
+    });
+
+    setCandidates((prev) =>
+      prev.map((c) =>
+        c.id === candidate.id ? { ...c, testSent: true } : c
+      )
+    );
+    
+  } catch (error) {
+    console.error("Error:", error);
+    toast({
+      title: "Server Error",
+      description: "Something went wrong while sending the email.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSending(false);
+  }
+};
+
 
 
   return (
@@ -182,7 +286,7 @@ export default function CandidateRow({ candidate }) {
 
       {/* Actions */}
       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-        {getActionButton(candidate.status)}
+        {getActionButton(candidate.status, candidate.rejectionSent)}
       </TableCell>
     </TableRow>
   );

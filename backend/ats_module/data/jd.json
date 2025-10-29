@@ -2,47 +2,142 @@
   {
     "id": 1,
     "title": "Data Engineer",
-    "skills": ["Python", "SQL", "ETL", "AWS", "Big Data", "Spark", "Data Pipelines", "Airflow"],
-    "keywords": ["Data Engineer", "cloud", "pipelines", "analytics", "data processing", "database"],
+    "skills": [
+      "Python",
+      "SQL",
+      "ETL",
+      "AWS",
+      "Big Data",
+      "Spark",
+      "Data Pipelines",
+      "Airflow"
+    ],
+    "keywords": [
+      "Data Engineer",
+      "cloud",
+      "pipelines",
+      "analytics",
+      "data processing",
+      "database"
+    ],
     "min_experience_months": 1.5
   },
   {
     "id": 2,
     "title": "ML Engineer",
-    "skills": ["Python", "ML", "Machine Learning", "PyTorch", "TensorFlow", "Deep Learning", "AI", "Scikit-learn", "NLP", "Computer Vision", "GenAI"],
-    "keywords": ["Machine Learning", "AI", "ML Engineer", "data science", "deep learning", "model deployment", "MLOps"],
+    "skills": [
+      "Python",
+      "ML",
+      "Machine Learning",
+      "PyTorch",
+      "TensorFlow",
+      "Deep Learning",
+      "AI",
+      "Scikit-learn",
+      "NLP",
+      "Computer Vision",
+      "GenAI"
+    ],
+    "keywords": [
+      "Machine Learning",
+      "AI",
+      "ML Engineer",
+      "data science",
+      "deep learning",
+      "model deployment",
+      "MLOps"
+    ],
     "min_experience_months": 2
   },
   {
-  "id": 3,
-  "title": ".NET Backend Developer",
-  "skills": ["C#", ".NET Core", "ASP.NET", "Web API", "SQL Server", "Entity Framework", "Azure", "Microservices", "REST APIs", "Docker"],
-  "keywords": [".NET Developer", "backend", "C#", "ASP.NET", "API development", "SQL Server", "cloud services", "microservices architecture"],
-  "min_experience_months": 1
-},
-{
-  "id": 4,
-  "title": "SAP Developer",
-  "skills": [
-    "SAP ABAP",
-    "OData Services",
-    "CDS Views",
-    "BAPIs",
-    "BADIs",
-    "Enhancements",
-    "Debugging",
-    "Performance Optimization"
-  ],
-  "keywords": [
-    "S/4HANA",
-    "SAP Integration",
-    "PI/PO",
-    "CPI",
-    "FICO",
-    "MM",
-    "Agile",
-    "SAP Certification"
-  ],
-  "min_experience_months": 2
-}
+    "id": 3,
+    "title": ".NET Backend Developer",
+    "skills": [
+      "C#",
+      ".NET Core",
+      "ASP.NET",
+      "Web API",
+      "SQL Server",
+      "Entity Framework",
+      "Azure",
+      "Microservices",
+      "REST APIs",
+      "Docker"
+    ],
+    "keywords": [
+      ".NET Developer",
+      "backend",
+      "C#",
+      "ASP.NET",
+      "API development",
+      "SQL Server",
+      "cloud services",
+      "microservices architecture"
+    ],
+    "min_experience_months": 1
+  },
+  {
+    "id": 4,
+    "title": "SAP Developer",
+    "skills": [
+      "SAP ABAP",
+      "OData Services",
+      "CDS Views",
+      "BAPIs",
+      "BADIs",
+      "Enhancements",
+      "Debugging",
+      "Performance Optimization"
+    ],
+    "keywords": [
+      "S/4HANA",
+      "SAP Integration",
+      "FICO",
+      "MM",
+      "SAP Certification"
+    ],
+    "min_experience_months": 2
+  },
+  {
+    "id": 5,
+    "title": "SAP FICO Functional Lead/Architect",
+    "skills": [
+      "SAP S/4HANA",
+      "FI-GL",
+      "Accounts Receivable (AR)",
+      "Accounts Payable (AP)",
+      "Controlling (CO)",
+      "Banking",
+      "SAP Analytics Cloud (SAC)",
+      "Profitability and Performance Management (PaPM)",
+      "AWS Cloud",
+      "Reporting",
+      "Data Migration",
+      "System Conversion",
+      "Integration",
+      "Solution Design",
+      "Architecture",
+      "Agile Methodology",
+      "Waterfall Methodology",
+      "Project Management"
+    ],
+    "keywords": [
+      "SAP FICO",
+      "S/4HANA",
+      "Finance and Controlling",
+      "SAP Functional Lead",
+      "Solution Architect",
+      "SAP Analytics",
+      "AWS Integration",
+      "SAP Cloud",
+      "Implementation",
+      "Customization",
+      "Data Migration",
+      "Performance Optimization",
+      "Technical Leadership",
+      "System Integration",
+      "Blueprint Design"
+    ],
+    "min_experience_months": 60
+  }
 ]

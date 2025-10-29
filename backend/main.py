@@ -6,8 +6,9 @@ from ats_module.utils.resume_processor import parse_resume
 from ats_module.utils.jd_processor import parse_jd
 from ats_module.utils.repository import ApplicantRepository,JDRepository
 from ats_module.utils.cloudinary_upload import upload_file
-from ats_module.utils.email_service import send_rejection_email
+from ats_module.utils.email_service import send_rejection_email, send_shortlist_email
 from ats_module.models.rejection_email_model import RejectionRequest
+from ats_module.models.shortlist_email_model import ShortlistRequest
 
 # --- Startup / Shutdown events ---S
 @asynccontextmanager
@@ -144,11 +145,99 @@ async def get_all_candidates():
         raise HTTPException(status_code=500, detail=f"Repository error: {e}")
 
 
+# @app.post("/send-rejection-email")
+# async def send_rejection_email_api(request: RejectionRequest):
+#     try:
+#         success = await send_rejection_email(request.email, request.name, request.position)
+
+#         if not success:
+#             raise HTTPException(status_code=500, detail="Failed to send the Rejection Email")
+        
+#         updated = await repo.mark_rejection_sent(request.candidate_id)
+#         # This is calling the mark_rejection_sent function in the repository.py to update that parameter to true for that candidate
+
+#         if not updated:
+#             raise HTTPException( status_code=500, detail="Candidate not found or update failed")
+        
+#         return{
+#             "message": f"Rejection email sent successfully to {request.email}",
+#             "status": "updated"
+#         }
+    
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=F"Error sending the rejection email: {e}")
+
 @app.post("/send-rejection-email")
 async def send_rejection_email_api(request: RejectionRequest):
-    success = await send_rejection_email(request.email, request.name, request.position)
+    try:
+        print(f"🔵 Starting rejection email process for candidate: {request.candidate_id}")
+        
+        success = await send_rejection_email(request.email, request.name, request.position)
+        print(f"📧 Email send result: {success}")
+
+        if not success:
+            print("❌ Email failed, raising exception")
+            raise HTTPException(status_code=500, detail="Failed to send the Rejection Email")
+        
+        updated = await repo.mark_rejection_sent(request.candidate_id)
+        print(f"💾 Database update result: {updated}")
+
+        if not updated:
+            print("❌ Database update failed, raising exception")
+            raise HTTPException(status_code=500, detail="Candidate not found or update failed")
+        
+        print("✅ Success! Returning success response")
+        return {
+            "message": f"Rejection email sent successfully to {request.email}",
+            "status": "updated"
+        }
     
-    if success:
-        return {"message": f"Rejection email sent successfully to {request.email}"}
-    else:
-        raise HTTPException(status_code=500, detail="Failed to send rejection email.")
+    except HTTPException:
+        print("⚠️ Re-raising HTTPException")
+        raise
+    except Exception as e:
+        print(f"❌ Caught unexpected exception: {e}")
+        raise HTTPException(status_code=500, detail=f"Error sending the rejection email: {str(e)}")
+    
+
+
+@app.post("/send-shortlist-email")
+async def send_shortlist_email_api(request: ShortlistRequest):
+    try:
+        print(f"🔵 Starting shortlist email process for candidate: {request.candidate_id}")
+        
+        # Optional: Add test link logic here
+        # test_link = "https://your-test-platform.com/test/12345"
+        test_link = None  # or generate/fetch from somewhere
+        
+        success = await send_shortlist_email(
+            request.email, 
+            request.name, 
+            request.position,
+            test_link
+        )
+        print(f"📧 Email send result: {success}")
+
+        if not success:
+            print("❌ Email failed, raising exception")
+            raise HTTPException(status_code=500, detail="Failed to send the Shortlist Email")
+        
+        updated = await repo.mark_test_sent(request.candidate_id)
+        print(f"💾 Database update result: {updated}")
+
+        if not updated:
+            print("❌ Database update failed, raising exception")
+            raise HTTPException(status_code=500, detail="Candidate not found or update failed")
+        
+        print("✅ Success! Returning success response")
+        return {
+            "message": f"Shortlist email sent successfully to {request.email}",
+            "status": "updated"
+        }
+    
+    except HTTPException:
+        print("⚠️ Re-raising HTTPException")
+        raise
+    except Exception as e:
+        print(f"❌ Caught unexpected exception: {e}")
+        raise HTTPException(status_code=500, detail=f"Error sending the shortlist email: {str(e)}")

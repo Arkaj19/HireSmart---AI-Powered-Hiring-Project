@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-class RejectionRequest(BaseModel):
-    candidate_id : str
+class ShortlistRequest(BaseModel):
+    candidate_id: str
     email: str
     name: str
     position: str
