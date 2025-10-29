@@ -12,16 +12,16 @@ export default function CandidateRow({ candidate, setCandidates }) {
   const getActionButton = (status, rejectionSent) => {
     if (candidate.testSent) {
       return (
-        <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>
-          <Send className='w-4 h-4 mr-2' />
+        <Button className="bg-[#caf0f8] text-[#0077b6] font-semibold cursor-not-allowed border border-[#90e0ef]" disabled>
+          <Send className="w-4 h-4 mr-2 text-[#0077b6]" />
           Test Sent
         </Button>
       );
     }
     if(rejectionSent){
       return(
-        <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>
-          <XCircle className='w-4 h-4 mr-2' />
+        <Button className="bg-[#fde8e8] text-[#b91c1c] font-semibold border border-[#fca5a5] cursor-not-allowed" disabled>
+          <XCircle className="w-4 h-4 mr-2 text-[#b91c1c]" />
           Rejection Sent
         </Button>
       )
@@ -122,6 +122,7 @@ const handleSendRejection = async (candidate) => {
     toast({
       title: "Rejection Email Sent",
       description: `An email was successfully sent to ${candidate.name}.`,
+      variant: "success"
     });
 
     console.log("🔄 Updating candidates state");

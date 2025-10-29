@@ -237,18 +237,17 @@ def determine_suitability(final_score: float, resume: Resume, jd: JobDescription
     - 50-69: Conditional (requires minimum 60% skill match)
     - <50: Rejection
     """
-    if final_score >= 70:
+    if final_score >= 50:
         return "Shortlisted"
-    elif final_score >= 50:
+    elif final_score >= 30:
         # Secondary check: Must have minimum core skills
         matched_skills, overlap_count = calculate_skill_overlap(resume.skills, jd.skills)
         total_skills = len(jd.skills) if jd.skills else 1
         skill_match_percentage = (overlap_count / total_skills) * 100
        
-        if skill_match_percentage >= 60:
+        if skill_match_percentage >= 40:
             return "Shortlisted"
         else:
             return "Rejected"
     else:
         return "Rejected"
- 
