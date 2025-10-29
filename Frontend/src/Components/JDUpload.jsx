@@ -40,10 +40,10 @@ function JDUpload({ onUpload }) {
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append("jdFile", selectedFile);
+      formData.append("file", selectedFile);
 
       // Example backend endpoint
-      const res = await fetch("http://localhost:5000/upload_jd", {
+      const res = await fetch("http://127.0.0.1:8000/uploadjd", {
         method: "POST",
         body: formData,
       });

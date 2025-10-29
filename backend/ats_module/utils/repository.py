@@ -2,25 +2,33 @@ from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
 from ats_module.models.resume_model import Resume
+from ats_module.models.jd_model import  JobDescription
 from ats_module.models.ats_model import MatchResult
-from ats_module.utils.db import applicants_collection
+from ats_module.utils.db import applicants_collection,job_description_collection
 from ats_module.utils.ats_scorer import compare_resume_with_jd
 
 import re
-import json
-from pathlib import Path
+
 
 #--------------------Get position title from position id --------------------------------------
-JD_FILE = Path(__file__).parent.parent / "data" / "jd.json"
+async def get_position_id()->int:
+    last_jd = await job_description_collection.find_one(
+        sort=[("position_id", -1)]  # sort descending by position_id
+    )
+    if last_jd and "position_id" in last_jd:
+        return last_jd["position_id"] + 1
+    return 1 
 
-with open(JD_FILE, "r", encoding="utf-8") as f:
-    jd_list = json.load(f)
-
-POSITION_MAP = {str(jd["id"]): jd["title"] for jd in jd_list}
-
-def get_position_title(position_id: int) -> str:
-    return POSITION_MAP.get(str(position_id), "Unknown Position")
-
+async def get_position_title(position_id: int) -> str:
+    """
+    Fetches the job title from the JD collection using position_id.
+    Returns 'Unknown Position' if not found.
+    """
+    jd_doc = await job_description_collection.find_one({"position_id": position_id})
+    if jd_doc:
+        # JD is stored inside the "jd" key → jd_doc["jd"]["title"]
+        return jd_doc.get("jd", {}).get("title", "Unknown Position")
+    return "Unknown Position"
 
 
 class ApplicantRepository:
@@ -39,7 +47,7 @@ class ApplicantRepository:
         """
 
         #fetch match_result and position title to add that to mongo
-        position_title = get_position_title(position_id) if position_id else ""
+        position_title = await get_position_title(position_id) if position_id else ""
         match_result = compare_resume_with_jd(resume, position_title) if position_title else {}
         doc = {
             "resume": resume.model_dump(),
@@ -52,6 +60,7 @@ class ApplicantRepository:
         }
         result = await applicants_collection.insert_one(doc)
         return str(result.inserted_id)
+    
 
     @staticmethod
     async def get_all_candidates():
@@ -132,3 +141,37 @@ class ApplicantRepository:
             return parse_date(date_str)
         except Exception:
             return datetime.utcnow()  # fallback to now
+
+class JDRepository:
+
+    @staticmethod
+    async def add_jd(
+        jd: JobDescription,
+        jd_filename: str,
+        jd_url: str
+    ):
+        """
+        Add a parsed JD to MongoDB.
+        Automatically assigns a new position_id (incremented from last JD).
+        Stores JD data, filename, URL, and position_id.
+        """
+        # Get next position_id
+        position_id = await get_position_id()
+
+        # Prepare the document for insertion
+        doc = {
+            "jd": jd.model_dump(),
+            "jd_filename": jd_filename,
+            "jd_url": jd_url,
+            "position_id": position_id,
+        }
+
+        # Insert into MongoDB
+        result = await job_description_collection.insert_one(doc)
+        
+        # Return the newly created position_id so frontend/backend can map it
+        return {
+            "jd_id": str(result.inserted_id),
+            "position_id": position_id
+        }
+

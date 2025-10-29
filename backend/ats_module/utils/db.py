@@ -4,7 +4,9 @@ MONGO_DETAILS = "mongodb+srv://larvaidol_db_user:NHic6HJqGJ9EGrbQ@hiresmartclust
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client["Candidates"]
+
 applicants_collection = database["Applicants"]
+job_description_collection=database["JobDescriptions"]
 
 async def connect_to_mongo():
     print("✅ Connected to MongoDB")
