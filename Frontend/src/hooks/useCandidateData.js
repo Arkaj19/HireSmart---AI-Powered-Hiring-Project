@@ -16,5 +16,6 @@ export function useCandidateData() {
     fetchData();
   }, []);
 
-  return { candidates };
+  // return { candidates };
+  return { candidates, setCandidates };
 }

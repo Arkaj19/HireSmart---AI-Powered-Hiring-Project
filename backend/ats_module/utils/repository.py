@@ -132,3 +132,27 @@ class ApplicantRepository:
             return parse_date(date_str)
         except Exception:
             return datetime.utcnow()  # fallback to now
+
+    @staticmethod
+    async def mark_rejection_sent(candidate_id: str):
+        """
+        Update the candidate record to set rejectionSent = True.
+        """
+        from bson import ObjectId
+        result = await applicants_collection.update_one(
+            {"_id": ObjectId(candidate_id)},
+            {"$set": {"rejectionSent": True}}
+        )
+        return result.modified_count > 0
+
+    @staticmethod
+    async def mark_test_sent(candidate_id: str):
+        """
+        Update the candidate record to set testSent = True.
+        """
+        from bson import ObjectId
+        result = await applicants_collection.update_one(
+            {"_id": ObjectId(candidate_id)},
+            {"$set": {"testSent": True}}
+        )
+        return result.modified_count > 0
