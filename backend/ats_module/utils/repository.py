@@ -30,6 +30,17 @@ async def get_position_title(position_id: int) -> str:
         return jd_doc.get("jd", {}).get("title", "Unknown Position")
     return "Unknown Position"
 
+# async def get_position_title(position_id: int) -> str:
+#     try:
+#         jd_doc = await job_description_collection.find_one({"position_id": position_id})
+#         if jd_doc and "jd" in jd_doc:
+#             return jd_doc["jd"].get("title", "Unknown Position")
+#         print(f"Warning: No JD found for position_id: {position_id}")
+#         return "Unknown Position"
+#     except Exception as e:
+#         print(f"Error in get_position_title: {str(e)}")
+#         return "Unknown Position"
+
 
 class ApplicantRepository:
 
@@ -48,10 +59,11 @@ class ApplicantRepository:
 
         #fetch match_result and position title to add that to mongo
         position_title = await get_position_title(position_id) if position_id else ""
-        match_result = compare_resume_with_jd(resume, position_title) if position_title else {}
+        match_result = await compare_resume_with_jd(resume, position_title) if position_title else {}
         doc = {
             "resume": resume.model_dump(),
             "position": position_title,
+            "position_id": position_id,
             "appliedDate": datetime.now(timezone.utc).date().isoformat(),
             "match_result": match_result.model_dump() if match_result else {},
             "resumeFileUrl": resume_url,  # Fixed variable name
@@ -60,7 +72,7 @@ class ApplicantRepository:
         }
         result = await applicants_collection.insert_one(doc)
         return str(result.inserted_id)
-    
+
 
     @staticmethod
     async def get_all_candidates():
@@ -142,6 +154,33 @@ class ApplicantRepository:
         except Exception:
             return datetime.utcnow()  # fallback to now
 
+<<<<<<< HEAD
+=======
+    @staticmethod
+    async def mark_rejection_sent(candidate_id: str):
+        """
+        Update the candidate record to set rejectionSent = True.
+        """
+        from bson import ObjectId
+        result = await applicants_collection.update_one(
+            {"_id": ObjectId(candidate_id)},
+            {"$set": {"rejectionSent": True}}
+        )
+        return result.modified_count > 0
+
+    @staticmethod
+    async def mark_test_sent(candidate_id: str):
+        """
+        Update the candidate record to set testSent = True.
+        """
+        from bson import ObjectId
+        result = await applicants_collection.update_one(
+            {"_id": ObjectId(candidate_id)},
+            {"$set": {"testSent": True}}
+        )
+        return result.modified_count > 0
+
+>>>>>>> ceeae709012f007dc9bfb4874414e9630db69968
 class JDRepository:
 
     @staticmethod
@@ -173,6 +212,7 @@ class JDRepository:
         return {
             "jd_id": str(result.inserted_id),
             "position_id": position_id
+<<<<<<< HEAD
         }
 
     @staticmethod
@@ -198,3 +238,6 @@ class JDRepository:
             {"$set": {"testSent": True}}
         )
         return result.modified_count > 0
+=======
+        }
+>>>>>>> ceeae709012f007dc9bfb4874414e9630db69968
