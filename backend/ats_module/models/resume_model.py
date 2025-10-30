@@ -75,7 +75,7 @@ class DeliverableEvidence(BaseModel):
 
 
 class ResumeExtractedData(BaseModel):
-    candidate_name: Optional[str] = None
+    name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
     total_experience_years: Optional[float] = Field(None, description="Total professional work experience in years")

@@ -83,7 +83,7 @@ class ApplicantRepository:
 
             candidate = {
                 "id": doc["_id"],
-                "name": resume_data.get("candidate_name", "") or resume_data.get("name", ""),
+                "name": resume_data.get("name", ""),
                 "email": resume_data.get("email", ""),
                 "position": doc.get("position", ""),
                 "experience": total_experience_years,
@@ -163,7 +163,7 @@ class JDRepository:
             doc["_id"]=str(doc["_id"])
             jd={
                 "id":doc["_id"],
-                "title":doc["jd"]["title"],
+                "title":doc["jd"]["job_title"],
                 "position_id":doc["position_id"],
                 "jd_url":doc["jd_url"],
                 "status":"Active"

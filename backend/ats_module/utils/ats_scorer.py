@@ -203,15 +203,18 @@ class GapRiskAnalysis:
     trainable_gaps: List[str]
     overqualification_risks: List[str]
 
-class MatchResult:
-    job_id: Optional[str]
-    candidate_id: Optional[str]
-    candidate_name: Optional[str]
-    task_specific_matches: List[TaskMatch]
-    sectional_scores: Optional[SectionalMatchScores]
-    gap_risk_analysis: Optional[GapRiskAnalysis]
-    overall_comments: Optional[str]
-    generated_on: Optional[str]
+class MatchResult(BaseModel):
+    job_id: Optional[str] = None
+    candidate_id: Optional[str] = None
+    candidate_name: Optional[str] = None
+    task_specific_matches: List[TaskMatch] = []
+    sectional_scores: Optional[SectionalMatchScores] = None
+    gap_risk_analysis: Optional[GapRiskAnalysis] = None
+    overall_comments: Optional[str] = None
+    suitability: Optional[str] = Field(None, description="Overall candidate suitability level (e.g., High, Medium, Low)")
+    match_score: Optional[int] = Field(None, description="Overall weighted matching score (0–100)")
+    generated_on: Optional[str] = Field(None, description="Timestamp of match generation")
+
 
 Output only valid JSON.
 """)
