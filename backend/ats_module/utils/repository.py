@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
-from ats_module.models.resume_model import Resume
-from ats_module.models.jd_model import  JobDescription
-from ats_module.models.ats_model import MatchResult
+from ats_module.models.resume_model import ResumeExtractedData
+from ats_module.models.jd_model import  JDExtractedData
+from ats_module.models.match_result_model import MatchResult
 from ats_module.utils.db import applicants_collection,job_description_collection
 from ats_module.utils.ats_scorer import compare_resume_with_jd
 import re
@@ -25,8 +25,8 @@ async def get_position_title(position_id: int) -> str:
     """
     jd_doc = await job_description_collection.find_one({"position_id": position_id})
     if jd_doc:
-        # JD is stored inside the "jd" key → jd_doc["jd"]["title"]
-        return jd_doc.get("jd", {}).get("title", "Unknown Position")
+        # JD model now uses "job_title"
+        return jd_doc.get("jd", {}).get("job_title", jd_doc.get("jd", {}).get("title", "Unknown Position"))
     return "Unknown Position"
 
 
@@ -34,7 +34,7 @@ class ApplicantRepository:
 
     @staticmethod
     async def add_candidate(
-    resume: Resume,
+    resume: ResumeExtractedData,
     match_result: MatchResult,
     resume_filename: str,
     resume_url: str,  # Moved before default parameter
@@ -72,21 +72,28 @@ class ApplicantRepository:
         async for doc in applicants_collection.find():
             doc["_id"] = str(doc["_id"])
             resume_data = doc.get("resume", {})
-            total_experience_years = resume_data.get("total_experience", 0)
+
+            # New resume model uses candidate_name and total_experience_years
+            total_experience_years = resume_data.get("total_experience_years", 0) or resume_data.get("total_experience", 0)
+
+            match_result = doc.get("match_result", {}) or {}
+            # try to extract a sensible match_score and status from new/old shapes
+            match_score = match_result.get("match_score") or (match_result.get("sectional_scores") or {}).get("overall_fit_score", 0)
+            status = match_result.get("suitability") or match_result.get("overall_comments", "")
 
             candidate = {
                 "id": doc["_id"],
-                "name": doc.get("resume", {}).get("name", ""),
-                "email": doc.get("resume", {}).get("email", ""),
+                "name": resume_data.get("candidate_name", "") or resume_data.get("name", ""),
+                "email": resume_data.get("email", ""),
                 "position": doc.get("position", ""),
                 "experience": total_experience_years,
                 "appliedDate": doc.get("appliedDate", ""),
-                "status": doc.get("match_result", {}).get("suitability", ""),
+                "status": status,
                 "resumeUrl": doc.get("resumeFileUrl", ""),
                 "testSent": doc.get("testSent", False),
                 "rejectionSent": doc.get("rejectionSent", False),
-                "match_score": doc.get("match_result", {}).get("match_score", 0),
-                "reason": doc.get("match_result", {}).get("reasoning", "")
+                "match_score": match_score,
+                "reason": match_result.get("overall_comments", "")
             }
             candidates.append(candidate)
 
@@ -120,7 +127,7 @@ class JDRepository:
 
     @staticmethod
     async def add_jd(
-        jd: JobDescription,
+        jd: JDExtractedData,
         jd_filename: str,
         jd_url: str
     ):

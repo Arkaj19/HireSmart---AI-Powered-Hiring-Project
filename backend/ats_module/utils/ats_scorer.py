@@ -1,8 +1,8 @@
 import json
 import re
-from ats_module.models.resume_model import Resume
-from ats_module.models.jd_model import JobDescription
-from ats_module.models.ats_model import MatchResult
+from ats_module.models.resume_model import ResumeExtractedData
+from ats_module.models.jd_model import JDExtractedData
+from ats_module.models.match_result_model import MatchResult
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from ats_module.utils.db import job_description_collection
@@ -18,11 +18,11 @@ model = ChatGoogleGenerativeAI(
 )
  
 # ------------------ JD Loader ------------------
-async def load_jd(position: str) -> JobDescription:
+async def load_jd(position: str) -> JDExtractedData:
     """
     Loads the JD for a given position from MongoDB JobDescriptions collection.
     Expects documents with a 'jd' field that contains the JobDescription dict.
-    Matches JD title case-insensitively.
+    Matches JD job_title case-insensitively.
     Raises ValueError if not found.
     """
     if not position:
@@ -30,11 +30,12 @@ async def load_jd(position: str) -> JobDescription:
 
     # safe escape for regex
     escaped = re.escape(position.strip())
-    query = {"jd.title": {"$regex": f"^{escaped}$", "$options": "i"}}
+    # JD model now uses job_title
+    query = {"jd.job_title": {"$regex": f"^{escaped}$", "$options": "i"}}
 
     jd_doc = await job_description_collection.find_one(query)
     if jd_doc and "jd" in jd_doc:
-        return JobDescription(**jd_doc["jd"])
+        return JDExtractedData(**jd_doc["jd"])
 
     raise ValueError(f"No JD found for position '{position}'")
  
@@ -43,35 +44,46 @@ async def load_jd(position: str) -> JobDescription:
 def simple_normalize_skill(skill: str) -> str:
     """
     Basic normalization: lowercase and strip whitespace.
-    No predefined mapping - keeps it flexible.
+    Accept either string or object with skill_name.
     """
-    return skill.lower().strip()
- 
- 
+    if not skill:
+        return ""
+    if isinstance(skill, dict):
+        skill = skill.get("skill_name") or skill.get("skill") or ""
+    if hasattr(skill, "skill_name"):
+        skill = getattr(skill, "skill_name")
+    return str(skill).lower().strip()
+
 def calculate_skill_overlap(resume_skills: list, jd_skills: list) -> tuple:
     """
     Simple set-based overlap calculation.
+    Accepts lists of strings or objects (SkillEvidence / TechnicalSkill).
     Returns (matched_skills, overlap_count)
     """
-    resume_normalized = {simple_normalize_skill(s) for s in resume_skills}
-    jd_normalized = {simple_normalize_skill(s) for s in jd_skills}
-   
+    resume_normalized = {simple_normalize_skill(s) for s in (resume_skills or [])}
+    jd_normalized = {simple_normalize_skill(s) for s in (jd_skills or [])}
+
     matched = resume_normalized & jd_normalized
+    # filter out empty strings
+    matched = {m for m in matched if m}
     return list(matched), len(matched)
- 
- 
+
 def extract_years_from_text(text: str) -> float:
     """
-    Extract years from experience strings.
-    Example: "5 years" → 5.0, "3+ years" → 3.0
+    Extract years from experience strings or numeric fields.
     """
-    if not text:
+    if text is None:
         return 0.0
-   
-    match = re.search(r'(\d+(?:\.\d+)?)\s*(?:\+)?\s*years?', str(text).lower())
+    # if the field is already numeric
+    try:
+        return float(text)
+    except Exception:
+        pass
+
+    text = str(text).lower()
+    match = re.search(r'(\d+(?:\.\d+)?)\s*(?:\+)?\s*years?', text)
     return float(match.group(1)) if match else 0.0
- 
- 
+
 def calculate_experience_score(resume_exp: str, required_exp: str) -> float:
     """
     Compare candidate experience with required experience.
@@ -110,148 +122,185 @@ def safe_parse_llm_response(response) -> dict:
  
  
 # ------------------ Compare Resume vs JD ------------------
-async def compare_resume_with_jd(resume: Resume, position: str) -> MatchResult:
+async def compare_resume_with_jd(resume: ResumeExtractedData, position: str) -> MatchResult:
     jd = await load_jd(position)
- 
+
+    # Extract plain skill name lists for internal fallback scoring and LLM context
+    resume_skill_names = []
+    if getattr(resume, "skills_inventory", None):
+        resume_skill_names = [getattr(s, "skill_name", "") for s in resume.skills_inventory]
+    elif getattr(resume, "skills", None):
+        resume_skill_names = resume.skills
+
+    jd_skill_names = []
+    if getattr(jd, "technical_skills", None):
+        jd_skill_names = [getattr(s, "skill_name", "") for s in jd.technical_skills]
+    elif getattr(jd, "skills", None):
+        jd_skill_names = jd.skills
+
+    # Prepare simple JSON strings for LLM context
+    jd_json = jd.model_dump_json()
+    resume_json = resume.model_dump_json()
+
     prompt_template = ChatPromptTemplate.from_template("""
-You are an expert ATS (Applicant Tracking System). Compare the resume against the job description.
- 
-Job Description:
-{jd}
- 
-Resume:
-{resume}
- 
-Evaluation Criteria:
-1. Skills Match: Recognize similar/equivalent skills using intelligent matching
-   Few-shot examples of equivalent skills:
-   - "JavaScript" = "JS" = "Javascript" = "java script"
-   - "React" = "React.js" = "ReactJS" = "React JS"
-   - "Node.js" = "NodeJS" = "Node" = "node js"
-   - "Python" = "Python3" = "Py"
-   - "Machine Learning" = "ML"
-   - "Artificial Intelligence" = "AI"
-   - "AWS" = "Amazon Web Services"
-   - "Kubernetes" = "K8s"
-   - "PostgreSQL" = "Postgres"
-   - "MongoDB" = "Mongo"
-   
-   Apply this same logic to ALL skills - understand variations, abbreviations, and common aliases.
- 
-2. Experience Relevance: Evaluate years of experience and domain expertise
-3. Education Fit: Assess degree level and field alignment
-4. Project/Work Alignment: Check if past work aligns with job requirements
- 
-CRITICAL INSTRUCTIONS:
-- Respond with ONLY valid JSON
-- NO markdown formatting, NO code blocks, NO extra text
-- Use the exact format specified below
-- When matching skills, be intelligent about equivalents (as shown in examples)
- 
-Required JSON Format:
-{{
-  "match_score": <number between 0-100>,
-  "matched_skills": ["skill1", "skill2", "skill3"],
-  "missing_skills": ["skill4", "skill5"],
-  "suitability": "Selected or Rejected",
-  "reasoning": "Provide 2-3 sentences explaining key strengths and any critical gaps"
-}}
- 
-Example Valid Response:
-{{
-  "match_score": 78,
-  "matched_skills": ["Python", "Machine Learning", "Docker", "REST APIs"],
-  "missing_skills": ["Kubernetes", "AWS"],
-  "suitability": "Selected",
-  "reasoning": "Candidate demonstrates 4 years of Python experience with strong ML project portfolio. Core technical skills align well with requirements. Missing cloud orchestration experience but can be trained."
-}}
- 
-Now evaluate the candidate:
+You are an expert evaluator performing an Applicant Tracking System (ATS) matching process.
+
+**INPUTS:**
+- Extracted Job Description data:
+{jd_data}
+
+- Extracted Resume data:
+{resume_data}
+
+**GOAL:**
+Produce a structured Match Result evaluating how well the candidate aligns with the JD requirements.
+
+**OUTPUT STRUCTURE:**
+
+## Part 1: Task-Specific Capability Assessment
+For each major JD task:
+- Task name
+- Evidence from resume (project or role)
+- Similarity type (Exact / Similar / Related)
+- Confidence score (0–100)
+- Comments
+
+## Part 2: Sectional Match Scores
+- Skills match score (based on overlap and proficiency)
+- Experience relevance score
+- Certification alignment score
+- Education alignment score
+- Deliverable execution score
+- Overall fit score (weighted aggregate)
+
+## Part 3: Gap & Risk Analysis
+Identify and list:
+- Critical gaps: completely missing requirements
+- Moderate gaps: related or transferable skills present
+- Trainable gaps: can be learned quickly
+- Overqualification risks: candidate exceeds role scope
+
+Return all results as structured JSON adhering strictly to the following pydantic schema:
+
+class TaskMatch:
+    jd_task: str
+    evidence_from_resume: Optional[str]
+    similarity_type: Optional[str]
+    confidence_score: Optional[int]
+    comments: Optional[str]
+
+class SectionalMatchScores:
+    skills_match_score: Optional[int]
+    experience_relevance_score: Optional[int]
+    certification_alignment_score: Optional[int]
+    education_alignment_score: Optional[int]
+    deliverable_execution_score: Optional[int]
+    overall_fit_score: Optional[int]
+
+class GapRiskAnalysis:
+    critical_gaps: List[str]
+    moderate_gaps: List[str]
+    trainable_gaps: List[str]
+    overqualification_risks: List[str]
+
+class MatchResult:
+    job_id: Optional[str]
+    candidate_id: Optional[str]
+    candidate_name: Optional[str]
+    task_specific_matches: List[TaskMatch]
+    sectional_scores: Optional[SectionalMatchScores]
+    gap_risk_analysis: Optional[GapRiskAnalysis]
+    overall_comments: Optional[str]
+    generated_on: Optional[str]
+
+Output only valid JSON.
 """)
- 
+
     chain = prompt_template | model
     response = await chain.ainvoke({
-        "jd": jd.model_dump_json(),
-        "resume": resume.model_dump_json()
+        "jd_data": jd_json,
+        "resume_data": resume_json
     })
- 
+
     # --- Parse LLM response with enhanced error handling ---
     try:
         parsed = safe_parse_llm_response(response)
     except Exception as e:
         print(f"[Warning] LLM response parsing failed: {e}")
         print(f"[Debug] Raw response: {response.content if hasattr(response, 'content') else response}")
-       
+
         # Improved fallback with actual skill analysis
-        matched_skills, overlap_count = calculate_skill_overlap(resume.skills, jd.skills)
-        all_jd_skills_normalized = {simple_normalize_skill(s) for s in jd.skills}
-        all_resume_skills_normalized = {simple_normalize_skill(s) for s in resume.skills}
+        matched_skills, overlap_count = calculate_skill_overlap(resume_skill_names, jd_skill_names)
+        all_jd_skills_normalized = {simple_normalize_skill(s) for s in jd_skill_names}
+        all_resume_skills_normalized = {simple_normalize_skill(s) for s in resume_skill_names}
         missing = list(all_jd_skills_normalized - all_resume_skills_normalized)
-       
+
         parsed = {
+            # Legacy fallback shape kept for repository compatibility:
             "match_score": 50,
-            "matched_skills": matched_skills[:5] if matched_skills else resume.skills[:3],
+            "matched_skills": matched_skills[:5] if matched_skills else resume_skill_names[:3],
             "missing_skills": missing[:5],
             "suitability": "Rejected",
             "reasoning": "System fallback: Unable to perform complete analysis. Manual review recommended."
         }
- 
+
+    # Determine llm_score from parsed if present, else fallback
+    llm_score = parsed.get("match_score", 50)
+
     # Blend with in-house scoring
-    final_score = evaluate_candidate(resume, jd, parsed["match_score"])
+    final_score = evaluate_candidate(resume, jd, llm_score)
     parsed["match_score"] = int(round(final_score))
- 
+
     # Enhanced decision logic with tiered system
     parsed["suitability"] = determine_suitability(final_score, resume, jd)
- 
+
+    # Attempt to construct MatchResult model: if LLM returned full structure, use it, otherwise use fallbacks
+    # If parsed already matches MatchResult fields, this will initialize fine.
     return MatchResult(**parsed)
  
  
 # ------------------ Enhanced In-house Evaluation ------------------
-def evaluate_candidate(resume: Resume, jd: JobDescription, llm_score: float) -> float:
+def evaluate_candidate(resume: ResumeExtractedData, jd: JDExtractedData, llm_score: float) -> float:
     """
     Enhanced evaluation combining skills, experience, and LLM assessment.
-   
-    Scoring Weights:
-    - Skills Match: 40%
-    - Experience: 30%
-    - LLM Contextual Analysis: 30%
     """
-    # 1. SKILLS SCORING (40% weight)
-    matched_skills, overlap_count = calculate_skill_overlap(resume.skills, jd.skills)
-    total_skills = len(jd.skills) if jd.skills else 1
+    # Extract skill name lists
+    resume_skill_names = [getattr(s, "skill_name", "") for s in getattr(resume, "skills_inventory", [])] if getattr(resume, "skills_inventory", None) else getattr(resume, "skills", []) or []
+    jd_skill_names = [getattr(s, "skill_name", "") for s in getattr(jd, "technical_skills", [])] if getattr(jd, "technical_skills", None) else getattr(jd, "skills", []) or []
+
+    matched_skills, overlap_count = calculate_skill_overlap(resume_skill_names, jd_skill_names)
+    total_skills = len(jd_skill_names) if jd_skill_names else 1
     skill_score = (overlap_count / total_skills) * 100
- 
-    # 2. EXPERIENCE SCORING (30% weight)
-    resume_experience = getattr(resume, 'experience', '') or getattr(resume, 'total_experience', '')
-    jd_experience = getattr(jd, 'experience_required', '') or getattr(jd, 'experience', '')
-    exp_score = calculate_experience_score(resume_experience, jd_experience)
- 
-    # 3. LLM SCORE (30% weight)
-    # LLM captures soft skills, communication quality, culture fit, and intelligent skill matching
- 
-    # Weighted formula
-    final_score = (0.4 * skill_score) + (0.3 * exp_score) + (0.3 * llm_score)
-   
+
+    # Experience scoring: use total_experience_years on resume and experience_requirements on JD
+    resume_experience = getattr(resume, 'total_experience_years', '') or getattr(resume, 'total_experience', '')
+    jd_experience = getattr(jd, 'experience_requirements', None)
+    if jd_experience:
+        jd_exp_val = getattr(jd_experience, 'total_experience_years', '') or getattr(jd_experience, 'relevant_experience_years', '')
+    else:
+        jd_exp_val = ''
+
+    exp_score = calculate_experience_score(resume_experience, jd_exp_val)
+
+    final_score = (0.4 * skill_score) + (0.3 * exp_score) + (0.3 * float(llm_score or 0))
     return round(final_score, 2)
- 
- 
-def determine_suitability(final_score: float, resume: Resume, jd: JobDescription) -> str:
+
+def determine_suitability(final_score: float, resume: ResumeExtractedData, jd: JDExtractedData) -> str:
     """
     Multi-tier decision making for better accuracy.
-   
-    Thresholds:
-    - 70+: Strong match (auto-select)
-    - 50-69: Conditional (requires minimum 60% skill match)
-    - <50: Rejection
     """
-    if final_score >= 50:
+    if final_score >= 70:
+        return "Shortlisted"
+    elif final_score >= 50:
         return "Shortlisted"
     elif final_score >= 30:
         # Secondary check: Must have minimum core skills
-        matched_skills, overlap_count = calculate_skill_overlap(resume.skills, jd.skills)
-        total_skills = len(jd.skills) if jd.skills else 1
+        resume_skill_names = [getattr(s, "skill_name", "") for s in getattr(resume, "skills_inventory", [])] if getattr(resume, "skills_inventory", None) else getattr(resume, "skills", []) or []
+        jd_skill_names = [getattr(s, "skill_name", "") for s in getattr(jd, "technical_skills", [])] if getattr(jd, "technical_skills", None) else getattr(jd, "skills", []) or []
+        matched_skills, overlap_count = calculate_skill_overlap(resume_skill_names, jd_skill_names)
+        total_skills = len(jd_skill_names) if jd_skill_names else 1
         skill_match_percentage = (overlap_count / total_skills) * 100
-       
+
         if skill_match_percentage >= 40:
             return "Shortlisted"
         else:
