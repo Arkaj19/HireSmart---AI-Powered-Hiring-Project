@@ -154,8 +154,6 @@ class ApplicantRepository:
         except Exception:
             return datetime.utcnow()  # fallback to now
 
-<<<<<<< HEAD
-=======
     @staticmethod
     async def mark_rejection_sent(candidate_id: str):
         """
@@ -180,7 +178,6 @@ class ApplicantRepository:
         )
         return result.modified_count > 0
 
->>>>>>> ceeae709012f007dc9bfb4874414e9630db69968
 class JDRepository:
 
     @staticmethod
@@ -212,32 +209,4 @@ class JDRepository:
         return {
             "jd_id": str(result.inserted_id),
             "position_id": position_id
-<<<<<<< HEAD
         }
-
-    @staticmethod
-    async def mark_rejection_sent(candidate_id: str):
-        """
-        Update the candidate record to set rejectionSent = True.
-        """
-        from bson import ObjectId
-        result = await applicants_collection.update_one(
-            {"_id": ObjectId(candidate_id)},
-            {"$set": {"rejectionSent": True}}
-        )
-        return result.modified_count > 0
-
-    @staticmethod
-    async def mark_test_sent(candidate_id: str):
-        """
-        Update the candidate record to set testSent = True.
-        """
-        from bson import ObjectId
-        result = await applicants_collection.update_one(
-            {"_id": ObjectId(candidate_id)},
-            {"$set": {"testSent": True}}
-        )
-        return result.modified_count > 0
-=======
-        }
->>>>>>> ceeae709012f007dc9bfb4874414e9630db69968
