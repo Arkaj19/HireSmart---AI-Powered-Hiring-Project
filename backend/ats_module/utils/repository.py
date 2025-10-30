@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
-from ats_module.models.resume_model import Resume
-from ats_module.models.jd_model import  JobDescription
-from ats_module.models.ats_model import MatchResult
+from ats_module.models.resume_model import ResumeExtractedData
+from ats_module.models.jd_model import  JDExtractedData
+from ats_module.models.match_result_model import MatchResult
 from ats_module.utils.db import applicants_collection,job_description_collection
 from ats_module.utils.ats_scorer import compare_resume_with_jd
 import re
@@ -25,8 +25,8 @@ async def get_position_title(position_id: int) -> str:
     """
     jd_doc = await job_description_collection.find_one({"position_id": position_id})
     if jd_doc:
-        # JD is stored inside the "jd" key → jd_doc["jd"]["title"]
-        return jd_doc.get("jd", {}).get("title", "Unknown Position")
+        # JD model now uses "job_title"
+        return jd_doc.get("jd", {}).get("job_title", jd_doc.get("jd", {}).get("title", "Unknown Position"))
     return "Unknown Position"
 
 
@@ -34,7 +34,7 @@ class ApplicantRepository:
 
     @staticmethod
     async def add_candidate(
-    resume: Resume,
+    resume: ResumeExtractedData,
     match_result: MatchResult,
     resume_filename: str,
     resume_url: str,  # Moved before default parameter
@@ -71,76 +71,33 @@ class ApplicantRepository:
         candidates = []
         async for doc in applicants_collection.find():
             doc["_id"] = str(doc["_id"])
-
-            # Calculate relevant experience in months
-            # experience_list = doc.get("resume", {}).get("experience", [])
-            # total_months = 0
-            # for exp in experience_list:
-            #     duration = exp.get("duration", "")
-            #     months = ApplicantRepository.parse_duration_to_months(duration)
-            #     total_months += months
             resume_data = doc.get("resume", {})
-            total_experience_years = resume_data.get("total_experience", 0)
+
+            # New resume model uses candidate_name and total_experience_years
+            total_experience_years = resume_data.get("total_experience_years", 0) or resume_data.get("total_experience", 0)
+
+            match_result = doc.get("match_result", {}) or {}
+            # try to extract a sensible match_score and status from new/old shapes
+            match_score = match_result.get("match_score") or (match_result.get("sectional_scores") or {}).get("overall_fit_score", 0)
+            status = match_result.get("suitability") or match_result.get("overall_comments", "")
 
             candidate = {
                 "id": doc["_id"],
-                "name": doc.get("resume", {}).get("name", ""),
-                "email": doc.get("resume", {}).get("email", ""),
+                "name": resume_data.get("candidate_name", "") or resume_data.get("name", ""),
+                "email": resume_data.get("email", ""),
                 "position": doc.get("position", ""),
-                # "experience": round(total_months / 12, 2),  # in years
                 "experience": total_experience_years,
                 "appliedDate": doc.get("appliedDate", ""),
-                "status": doc.get("match_result", {}).get("suitability", ""),
+                "status": status,
                 "resumeUrl": doc.get("resumeFileUrl", ""),
                 "testSent": doc.get("testSent", False),
                 "rejectionSent": doc.get("rejectionSent", False),
-                "match_score": doc.get("match_result", {}).get("match_score", 0),
-                "reason": doc.get("match_result", {}).get("reasoning", "")
+                "match_score": match_score,
+                "reason": match_result.get("overall_comments", "")
             }
             candidates.append(candidate)
 
         return candidates
-
-    @staticmethod
-    def parse_duration_to_months(duration: str) -> int:
-        """
-        Convert a duration string like "Jun'21 - Jun'23" or "2021-2023" to total months.
-        Returns 0 if parsing fails.
-        """
-        try:
-            # Normalize apostrophes and spaces
-            duration = duration.replace("’", "'").strip()
-            # Extract start and end using regex
-            match = re.findall(r"([A-Za-z]{3}'?\d{2,4}|Present|\d{4})", duration)
-            if not match:
-                return 0
-
-            start_str = match[0]
-            end_str = match[1] if len(match) > 1 else "Present"
-
-            start_date = ApplicantRepository.parse_date_str(start_str)
-            end_date = datetime.now(timezone.utc) if end_str.lower() in ["present"] else ApplicantRepository.parse_date_str(end_str)
-            delta = relativedelta(end_date, start_date)
-            return delta.years * 12 + delta.months
-        except Exception:
-            return 0
-
-    @staticmethod
-    def parse_date_str(date_str: str) -> datetime:
-        """
-        Convert date strings like "Jun'21", "2021", "25" to datetime objects.
-        """
-        # Fix 2-digit years
-        if re.match(r"'\d{2}$", date_str):
-            date_str = "20" + date_str[-2:]
-        elif re.match(r"^\d{2}$", date_str):
-            date_str = "20" + date_str
-
-        # Try parsing
-        try:
-            return parse_date(date_str)
-        except Exception:
-            return datetime.utcnow()  # fallback to now
 
     @staticmethod
     async def mark_rejection_sent(candidate_id: str):
@@ -170,7 +127,7 @@ class JDRepository:
 
     @staticmethod
     async def add_jd(
-        jd: JobDescription,
+        jd: JDExtractedData,
         jd_filename: str,
         jd_url: str
     ):

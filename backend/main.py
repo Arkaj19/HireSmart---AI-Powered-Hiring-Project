@@ -65,18 +65,24 @@ async def upload_resume(
         # Parse resume with LLM
         parsed_resume = parse_resume(file_bytes)  # returns Resume object
 
-        # # ✅ DEBUG: Print the experience value to console
+        # ✅ DEBUG: Print the experience value to console (updated to new model fields)
         print("=" * 50)
         print("DEBUG - PARSED RESUME EXPERIENCE:")
-        print(f"Candidate Name: {parsed_resume.name}")
-        print(f"Total Experience: {parsed_resume.total_experience} years")  # Changed to total_experience
-        print(f"Experience Type: {type(parsed_resume.total_experience)}")
-        print(f"Work Experience entries: {len(parsed_resume.experience)}")
+        print(f"Candidate Name: {getattr(parsed_resume, 'candidate_name', '')}")
+        print(f"Total Experience: {getattr(parsed_resume, 'total_experience_years', getattr(parsed_resume, 'total_experience', ''))} years")
+        print(f"Experience Type: {type(getattr(parsed_resume, 'total_experience_years', getattr(parsed_resume, 'total_experience', None)))}")
+        # work_experience in new model
+        work_exps = getattr(parsed_resume, 'work_experience', []) or getattr(parsed_resume, 'experience', [])
+        print(f"Work Experience entries: {len(work_exps)}")
 
         # If work experience exists, print details
-        if parsed_resume.experience:
-            for i, exp in enumerate(parsed_resume.experience):
-                print(f"  Work {i+1}: {exp.company} - {exp.role} - {exp.duration}")
+        if work_exps:
+            for i, exp in enumerate(work_exps):
+                # new WorkExperience has job_title and company_name
+                company = getattr(exp, "company_name", getattr(exp, "company", ""))
+                role = getattr(exp, "job_title", getattr(exp, "role", ""))
+                duration = f"{getattr(exp, 'start_date', '')} - {getattr(exp, 'end_date', '')}" if (getattr(exp, 'start_date', None) or getattr(exp, 'end_date', None)) else getattr(exp, "duration", "")
+                print(f"  Work {i+1}: {company} - {role} - {duration}")
         print("=" * 50)  
 
         # Save to MongoDB
