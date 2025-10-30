@@ -170,7 +170,7 @@ Now evaluate the candidate:
 """)
  
     chain = prompt_template | model
-    response = chain.ainvoke({
+    response = await chain.ainvoke({
         "jd": jd.model_dump_json(),
         "resume": resume.model_dump_json()
     })

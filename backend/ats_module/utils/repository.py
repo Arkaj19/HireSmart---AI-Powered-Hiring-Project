@@ -6,7 +6,6 @@ from ats_module.models.jd_model import  JobDescription
 from ats_module.models.ats_model import MatchResult
 from ats_module.utils.db import applicants_collection,job_description_collection
 from ats_module.utils.ats_scorer import compare_resume_with_jd
-
 import re
 
 
@@ -29,17 +28,6 @@ async def get_position_title(position_id: int) -> str:
         # JD is stored inside the "jd" key → jd_doc["jd"]["title"]
         return jd_doc.get("jd", {}).get("title", "Unknown Position")
     return "Unknown Position"
-
-# async def get_position_title(position_id: int) -> str:
-#     try:
-#         jd_doc = await job_description_collection.find_one({"position_id": position_id})
-#         if jd_doc and "jd" in jd_doc:
-#             return jd_doc["jd"].get("title", "Unknown Position")
-#         print(f"Warning: No JD found for position_id: {position_id}")
-#         return "Unknown Position"
-#     except Exception as e:
-#         print(f"Error in get_position_title: {str(e)}")
-#         return "Unknown Position"
 
 
 class ApplicantRepository:
