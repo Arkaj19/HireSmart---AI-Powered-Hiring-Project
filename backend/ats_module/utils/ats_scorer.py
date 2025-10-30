@@ -5,6 +5,7 @@ from ats_module.models.jd_model import JobDescription
 from ats_module.models.ats_model import MatchResult
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
+from ats_module.utils.db import job_description_collection
 import os
 from dotenv import load_dotenv
  
@@ -17,18 +18,24 @@ model = ChatGoogleGenerativeAI(
 )
  
 # ------------------ JD Loader ------------------
-def load_jd(position: str) -> JobDescription:
+async def load_jd(position: str) -> JobDescription:
     """
-    Loads the JD for a given position from data/jd.json.
+    Loads the JD for a given position from MongoDB JobDescriptions collection.
+    Expects documents with a 'jd' field that contains the JobDescription dict.
+    Matches JD title case-insensitively.
+    Raises ValueError if not found.
     """
-    jd_path = os.path.join(os.path.dirname(__file__), "..", "data", "jd.json")
-    with open(jd_path, "r") as f:
-        jd_data = json.load(f)
- 
-    for jd_dict in jd_data:
-        if jd_dict["title"].lower() == position.lower():
-            return JobDescription(**jd_dict)
- 
+    if not position:
+        raise ValueError("Position must be provided to load JD")
+
+    # safe escape for regex
+    escaped = re.escape(position.strip())
+    query = {"jd.title": {"$regex": f"^{escaped}$", "$options": "i"}}
+
+    jd_doc = await job_description_collection.find_one(query)
+    if jd_doc and "jd" in jd_doc:
+        return JobDescription(**jd_doc["jd"])
+
     raise ValueError(f"No JD found for position '{position}'")
  
  
@@ -103,8 +110,8 @@ def safe_parse_llm_response(response) -> dict:
  
  
 # ------------------ Compare Resume vs JD ------------------
-def compare_resume_with_jd(resume: Resume, position: str) -> MatchResult:
-    jd = load_jd(position)
+async def compare_resume_with_jd(resume: Resume, position: str) -> MatchResult:
+    jd = await load_jd(position)
  
     prompt_template = ChatPromptTemplate.from_template("""
 You are an expert ATS (Applicant Tracking System). Compare the resume against the job description.
@@ -163,7 +170,7 @@ Now evaluate the candidate:
 """)
  
     chain = prompt_template | model
-    response = chain.invoke({
+    response = chain.ainvoke({
         "jd": jd.model_dump_json(),
         "resume": resume.model_dump_json()
     })
