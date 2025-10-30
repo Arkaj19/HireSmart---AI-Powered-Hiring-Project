@@ -11,7 +11,7 @@ python-dotenv
 
 # PDF extraction
 PyMuPDF
-
+python-docx
 
 # API framework
 fastapi

@@ -36,19 +36,18 @@ async def upload_file(
         # Extract file extension from filename
         file_extension = file_name.rsplit('.', 1)[-1].lower() if '.' in file_name else 'pdf'
         
-        # Create a proper filename without extension
-        base_name = file_name.rsplit('.', 1)[0] if '.' in file_name else file_name
-        
         # ✅ Use 'image' for PDFs to enable preview/thumbnails
-        resource_type = 'image'
+        if file_extension in ["pdf", "jpg", "jpeg", "png"]:
+            resource_type = "image"  # Enables preview
+        else:
+            resource_type = "raw"    # For docx, txt, csv, etc.
 
         upload_result = cloudinary.uploader.upload(
             file_bytes,
             resource_type=resource_type,
             folder=folder,
             format=file_extension,  # ✅ Explicitly set format to 'pdf'
-            # Don't set public_id to let Cloudinary generate unique names
-            # Or use: public_id=f"{base_name}_{int(time.time())}"
+           
         )
 
         return {

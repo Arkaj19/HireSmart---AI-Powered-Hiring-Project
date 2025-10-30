@@ -49,13 +49,14 @@ async def upload_resume(
 
         # Read file bytes
         file_bytes = await file.read()
+        #upload jd in cloudinary
         try:
             upload_result = await upload_file(
             file_bytes=file_bytes,
             file_name=file.filename,
             folder="resumes"
         )
-            resume_url = upload_result["secure_url"]
+            resume_url = upload_result["secure_url"]#secure_url is a KV pair in the dict returned by cloudinary_upload method
             # resume_public_id = upload_result["public_id"]
             # resume_format = upload_result["format"]
         except Exception as e:
@@ -102,8 +103,9 @@ async def upload_resume(
 @app.post("/uploadjd")
 async def upload_jd(file:UploadFile=File(...)):
     try:
-        if not file.filename.lower().endswith(".pdf"):
-            raise HTTPException(status_code=400,detail="Only Pdf files are Allowed")
+        allowed_extensions = (".pdf", ".docx")
+        if not file.filename.lower().endswith(allowed_extensions):
+            raise HTTPException(status_code=400,detail="Only Pdf or word Files are allowed")
         
         file_byte=await file.read()
         try:
@@ -117,7 +119,7 @@ async def upload_jd(file:UploadFile=File(...)):
             raise HTTPException(status_code=500, detail=f"Cloudinary upload failed: {str(e)}")
         
         #Parse jd with LLM
-        parsed_jd=await parse_jd(file_byte)
+        parsed_jd=await parse_jd(file_byte,file.filename)
         jd_url=upload_jd["secure_url"]
 
         jd_id=await jd_repo.add_jd(

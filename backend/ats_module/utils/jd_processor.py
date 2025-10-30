@@ -1,9 +1,11 @@
 import fitz
+from docx import Document
 from ats_module.models.jd_model import JobDescription
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 import os
 from dotenv import load_dotenv
+import io
 
 load_dotenv()
 
@@ -22,9 +24,20 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
             text += page.get_text("text")
     return text.strip()
 
-async def parse_jd(pdf_bytes:bytes)->JobDescription:
+def extract_text_from_docx(docx_bytes: bytes) -> str:
+    text = ""
+    doc = Document(io.BytesIO(docx_bytes))
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+    return text.strip()
+
+async def parse_jd(file_bytes:bytes,filenmae:str)->JobDescription:
     try:
-        jd_text=extract_text_from_pdf(pdf_bytes)
+        if filenmae.lower().endswith(".pdf"):
+            jd_text=extract_text_from_pdf(file_bytes)
+        elif filenmae.lower().endswith(".docx"):
+            jd_text=extract_text_from_docx(file_bytes)
+            
         prompt_template = ChatPromptTemplate.from_template("""You are an expert HR assistant. Extract structured information from the given Job Description (JD)
             and return it as a valid JSON object strictly matching the following fields:
 
