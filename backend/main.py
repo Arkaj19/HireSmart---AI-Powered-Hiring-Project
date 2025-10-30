@@ -145,6 +145,14 @@ async def get_all_candidates():
         return candidates
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Repository error: {e}")
+    
+@app.get("/jds")
+async def get_all_jd():
+    try:
+        jds = await jd_repo.get_all_jds()
+        return jds
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Repository error: {e}")
 
 
 # @app.post("/send-rejection-email")
