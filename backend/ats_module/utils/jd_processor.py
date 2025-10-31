@@ -37,29 +37,7 @@ async def parse_jd(file_bytes:bytes,filenmae:str)->JDExtractedData:
             jd_text=extract_text_from_pdf(file_bytes)
         elif filenmae.lower().endswith(".docx"):
             jd_text=extract_text_from_docx(file_bytes)
-            
-        # prompt_template = ChatPromptTemplate.from_template("""You are an expert HR assistant. Extract structured information from the given Job Description (JD)
-        #     and return it as a valid JSON object strictly matching the following fields:
-
-        #     {{
-        #     "title": str,
-        #     "company": str or null,
-        #     "location": str or null,
-        #     "skills": [list of skills],
-        #     "keywords": [list of key phrases],
-        #     "min_experience_months": integer,
-        #     "education": [list of qualifications],
-        #     "responsibilities": [list of responsibilities]
-        #     }}
-
-        #     Guidelines:
-        #     - If any field is missing in the JD, return null or an empty list as appropriate.
-        #     - Estimate "min_experience_months" based on text like “2+ years” (e.g., 2 years = 24 months).
-        #     - Extract skills and keywords as unique, relevant terms (e.g., "React", "Node.js", "Leadership").
-        #     - Keep the JSON clean and valid (no comments, no extra text).
-
-        #     Here is the Job Description Text: {jd_text}
-        #     """)
+        
 
         prompt_template = ChatPromptTemplate.from_template("""
         You are an expert Technical Resource Evaluator for IT service delivery projects.

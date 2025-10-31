@@ -136,7 +136,8 @@ async def upload_jd(file:UploadFile=File(...)):
         return { 
             "message": "JD processed and stored successfully",
             "jd_id": jd_id,
-            "jd_url": jd_url
+            "jd_url": jd_url,
+            "parsed_jd": parsed_jd
         }
     
 

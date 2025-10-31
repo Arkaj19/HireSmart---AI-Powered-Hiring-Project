@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 function JDUpload({ onUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -33,7 +34,11 @@ function JDUpload({ onUpload }) {
   // --- Upload Logic ---
   const handleUpload = async () => {
     if (!selectedFile) {
-      alert("Please select or drop a file first!");
+      toast({
+        title: "No File Selected",
+        description: "Please select or drop a JD file first.",
+        variant: "destructive", // red style
+      });
       return;
     }
 
@@ -50,11 +55,21 @@ function JDUpload({ onUpload }) {
 
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-
-      setPreview(data);
+      console.log("Uploaded JD data:", data);
+      setPreview(data.parsed_jd);
       onUpload && onUpload(data);
+      toast({
+        title: "Upload Successful",
+        description: `JD for "${data.parsed_jd?.job_title}" uploaded successfully!`,
+        variant: "success",
+      })
     } catch (err) {
       console.error(err);
+      toast({
+      title: "Upload Failed",
+      description: "There was an error uploading the JD.",
+      variant: "destructive",
+      });
       alert("Error uploading JD!");
     } finally {
       setIsUploading(false);
@@ -114,9 +129,12 @@ function JDUpload({ onUpload }) {
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
             Parsed JD Preview
           </h3>
-          <p><strong>Title:</strong> {preview.title}</p>
+          {/* <p><strong>Title:</strong> {preview.title}</p>
           <p><strong>Skills:</strong> {preview.skills?.join(", ")}</p>
-          <p><strong>Experience:</strong> {preview.min_experience_months} months</p>
+          <p><strong>Experience:</strong> {preview.min_experience_months} months</p> */}
+          <p><strong>Title:</strong> {preview.job_title}</p>
+          <p><strong>Skills:</strong> {preview.technical_skills?.map(skill => skill.skill_name).join(", ")}</p>
+          <p><strong>Experience:</strong> {preview.total_experience_years} years</p>
           <p className="text-gray-700 mt-2">{preview.description}</p>
         </div>
       )}

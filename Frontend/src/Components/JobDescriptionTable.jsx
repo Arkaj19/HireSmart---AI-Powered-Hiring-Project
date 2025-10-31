@@ -1,9 +1,8 @@
 import JobDescriptionRow from "./JobDescriptionRow";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import useJD_Data from "../hooks/useJD_Data"
 
-function JobDescriptionTable(){
-  const jds=useJD_Data();
+function JobDescriptionTable( {jds}){
+  // const jds=useJD_Data();
     return (
         <Table>
         <TableHeader>
@@ -23,7 +22,7 @@ function JobDescriptionTable(){
           </TableRow>
         </TableHeader>
         <TableBody className="bg-white divide-y divide-gray-200">
-          {jds.length>0? (
+          {jds && jds.length>0? (
             jds.map((jd) => (
             <JobDescriptionRow key={jd.id} jd={jd} /> 
           ))
