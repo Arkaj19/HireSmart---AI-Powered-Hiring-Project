@@ -9,9 +9,9 @@ function JobDescriptionPanel() {
     refresh(); // re-fetch after successful upload
   };
   return (
-    <div className="p-2">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <JDUpload onUpload={handleUploadSuccess}/>
-      <div className="mt-10">   {/* add margin-top here */}
+      <div className="mt-12">
         <JobDescriptionTable jds={jds}/>
       </div>
     </div>
