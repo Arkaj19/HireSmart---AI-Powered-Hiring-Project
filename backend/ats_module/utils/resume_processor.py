@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from ats_module.models.resume_model import ResumeExtractedData
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
+from ats_module.utils.calculate_years import calculate_experience_years
  
 load_dotenv()
  
@@ -140,10 +141,20 @@ def parse_resume(pdf_bytes: bytes) -> ResumeExtractedData:
  
     chain = prompt_template | model.with_structured_output(ResumeExtractedData)
     result = chain.invoke({"resume_text": text})
+
+    # ---------------- DEBUG LOGGING ----------------
+    print("\n==== WORK EXPERIENCE DEBUG LOG ====\n")
+    for idx, exp in enumerate(result.work_experience):
+        print(f"Role {idx + 1}:")
+        print(f"  Job Title     : {exp.job_title}")
+        print(f"  Company       : {exp.company_name}")
+        print(f"  Start Date    : {exp.start_date}")
+        print(f"  End Date      : {exp.end_date}")
+        print()
+    print("===================================\n")
+
+    calculated_years = calculate_experience_years(result.work_experience)
+    result.total_experience_years = calculated_years
+    print("Final calculated experience:", result.total_experience_years, "years")
+
     return result
- 
- 
- 
- 
- 
- 

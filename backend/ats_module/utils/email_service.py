@@ -12,15 +12,22 @@ async def send_rejection_email(to_email: str, candidate_name: str, position: str
     body = f"""
     Dear {candidate_name},
 
-    Thank you for your interest in the {position} position at GyanSys.
+    Thank you for taking the time to apply for the position of {position} at GyanSys. 
+    We truly appreciate your interest in joining our team and the effort you put into the application process.
 
-    After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.
+    After a thorough review of your profile, we regret to inform you that we will not be moving forward 
+    with your application at this stage. This decision was made after careful consideration of the role 
+    requirements and the qualifications of all applicants.
 
-    We appreciate the time and effort you invested and encourage you to apply for future opportunities with us.
+    Please know that this outcome does not diminish the value of your experience or potential. We encourage 
+    you to stay connected with us and apply for future opportunities that align with your skills and career goals.
 
-    Best regards,
+    Thank you once again for your interest in GyanSys. We wish you success in all your future endeavors.
+
+    Warm regards,
     GyanSys Talent Acquisition Team
     """
+
 
     message = MIMEMultipart()
     message["From"] = os.getenv("EMAIL_ADDRESS")
@@ -53,30 +60,30 @@ async def send_shortlist_email(to_email: str, candidate_name: str, position: str
     body = f"""
     Dear {candidate_name},
 
-    Congratulations! We are pleased to inform you that you have been shortlisted for the {position} position at GyanSys.
-
-    We were impressed with your qualifications and experience, and we would like to move forward with the next step in our hiring process.
+    Congratulations! We are pleased to inform you that you have been shortlisted for the position of {position} at GyanSys.
+    Your background and experience stood out during our initial evaluation, and we are excited to move forward with the next steps in our hiring process.
     """
-    
     # Add test link if provided
     if test_link:
         body += f"""
-    Please complete the technical assessment using the link below:
+    As part of the next stage, please complete the technical assessment using the link below:
+
     {test_link}
 
-    The assessment should take approximately 60-90 minutes to complete. Please complete it within the next 48 hours.
+    The assessment typically takes around 60–90 minutes to complete. We kindly request that you submit it within the next 48 hours.
     """
     else:
         body += """
-    Our team will reach out to you shortly with the next steps in the interview process.
+    Our Talent Acquisition team will reach out to you shortly with the next steps in the interview process.
     """
-    
-    body += """
-    If you have any questions, please don't hesitate to reach out.
 
-    Best regards,
+    body += """
+    If you have any questions or need any assistance, please feel free to reach out to us.
+
+    Warm regards,
     GyanSys Talent Acquisition Team
     """
+
 
     message = MIMEMultipart()
     message["From"] = os.getenv("EMAIL_ADDRESS")

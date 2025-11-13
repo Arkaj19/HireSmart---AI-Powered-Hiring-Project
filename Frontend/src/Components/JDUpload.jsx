@@ -361,14 +361,14 @@ function JDUpload({ onUpload }) {
                   ))}
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              {/* <div className="flex items-start gap-3">
                 <span className="text-sm font-semibold text-gray-600 min-w-[100px]">
                   Experience:
                 </span>
                 <span className="text-sm text-gray-900">
                   {preview.total_experience_years} years
                 </span>
-              </div>
+              </div> */}
               {preview.description && (
                 <div className="flex items-start gap-3 pt-3 border-t border-gray-100">
                   <span className="text-sm font-semibold text-gray-600 min-w-[100px]">
