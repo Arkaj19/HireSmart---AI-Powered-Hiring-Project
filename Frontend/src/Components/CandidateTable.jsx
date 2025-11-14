@@ -23,13 +23,13 @@ export default function CandidateTable({ candidates, setCandidates }) {
               Applied Date
             </TableHead>
             <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              Status
+              Selection Status
             </TableHead>
             <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Resume
             </TableHead>
             <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              Actions
+              Action Status
             </TableHead>
           </TableRow>
         </TableHeader>

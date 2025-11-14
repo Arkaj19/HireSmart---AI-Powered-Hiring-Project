@@ -35,14 +35,14 @@ function Header({ activeTab, setActiveTab }) {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-semibold text-white">
-            Hiring Automation Dashboard
+            HireSmart
           </h1>
           <p className="text-gray-300 mt-1">
-            Manage Candidates, Review Resumes, and Automate your Hiring Process
+            AI Smart Hiring Dashboard
           </p>
 
           <div className="flex space-x-6 mt-4 border-b border-gray-700">
-            {["candidates", "job descriptions"].map((tab) => (
+            {["TA Dashboard", "JD Upload"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}

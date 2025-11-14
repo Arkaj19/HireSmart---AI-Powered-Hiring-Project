@@ -1,6 +1,13 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+from dotenv import load_dotenv
+import os
 
-MONGO_DETAILS = "mongodb+srv://larvaidol_db_user:NHic6HJqGJ9EGrbQ@hiresmartcluster.f4ujoiv.mongodb.net/candidates?retryWrites=true&w=majority&appName=HireSmartCluster"
+load_dotenv()
+
+MONGO_DETAILS = os.getenv('MONGO_URI')
+
+if not MONGO_DETAILS:
+    raise RuntimeError("❌ MONGO_URI is not set in .env file")
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client["Candidates"]

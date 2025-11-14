@@ -4,10 +4,8 @@ langchain-core
 langchain-google-genai
 google-ai-generativelanguage
 
-
 # Environment variable management
 python-dotenv
-
 
 # PDF extraction
 PyMuPDF
@@ -17,7 +15,6 @@ python-docx
 fastapi
 uvicorn
 
-
 # Data validation and schema
 pydantic
 
@@ -26,3 +23,8 @@ motor
 cloudinary
 python-multipart
 aiosmtplib
+PyJWT
+bcrypt==4.0.1
+passlib[bcrypt]
+email-validator
+

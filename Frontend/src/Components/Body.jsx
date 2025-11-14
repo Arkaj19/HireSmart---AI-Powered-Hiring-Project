@@ -4,8 +4,8 @@ import JobDescriptionPanel from "./JobDescriptionPanel";
 function Body({ activeTab }) {
   return (
     <div className="p-8">
-      {activeTab === "candidates" && <CandidatePanel />}
-      {activeTab === "job descriptions" && <JobDescriptionPanel/>}
+      {activeTab === "TA Dashboard" && <CandidatePanel />}
+      {activeTab === "JD Upload" && <JobDescriptionPanel/>}
     </div>
   );
 }

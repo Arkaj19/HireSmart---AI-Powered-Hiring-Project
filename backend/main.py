@@ -9,6 +9,8 @@ from ats_module.utils.cloudinary_upload import upload_file
 from ats_module.utils.email_service import send_rejection_email, send_shortlist_email
 from ats_module.models.rejection_email_model import RejectionRequest
 from ats_module.models.shortlist_email_model import ShortlistRequest
+from fastapi import Response, Depends
+from typing import Optional
 
 # --- Startup / Shutdown events ---S
 @asynccontextmanager
@@ -162,28 +164,6 @@ async def get_all_jd():
         raise HTTPException(status_code=500, detail=f"Repository error: {e}")
 
 
-# @app.post("/send-rejection-email")
-# async def send_rejection_email_api(request: RejectionRequest):
-#     try:
-#         success = await send_rejection_email(request.email, request.name, request.position)
-
-#         if not success:
-#             raise HTTPException(status_code=500, detail="Failed to send the Rejection Email")
-        
-#         updated = await repo.mark_rejection_sent(request.candidate_id)
-#         # This is calling the mark_rejection_sent function in the repository.py to update that parameter to true for that candidate
-
-#         if not updated:
-#             raise HTTPException( status_code=500, detail="Candidate not found or update failed")
-        
-#         return{
-#             "message": f"Rejection email sent successfully to {request.email}",
-#             "status": "updated"
-#         }
-    
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=F"Error sending the rejection email: {e}")
-
 @app.post("/send-rejection-email")
 async def send_rejection_email_api(request: RejectionRequest):
     try:
@@ -258,3 +238,120 @@ async def send_shortlist_email_api(request: ShortlistRequest):
     except Exception as e:
         print(f"❌ Caught unexpected exception: {e}")
         raise HTTPException(status_code=500, detail=f"Error sending the shortlist email: {str(e)}")
+
+
+## Code for the Login and Signup
+from ats_module.auth.auth_models import RegisterModel, LoginModel, UserOut
+from ats_module.auth.auth_utils import (
+    hash_password, verify_password,
+    create_access_token, get_current_user
+)
+from ats_module.auth.auth_repository import (
+    find_user_by_email, find_user_by_employeeId,
+    create_user, find_user_by_id
+)
+
+@app.post("/auth/register")
+async def register_user(
+    email: str = Form(...),
+    employeeId: str = Form(...),
+    phone: str = Form(...),
+    name: str = Form(...),
+    password: str = Form(...),
+    designation: str = Form(...),
+    file: Optional[UploadFile] = File(None)
+):
+    # Check unique email
+    existing = await find_user_by_email(email)
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already exists")
+
+    # Check unique employeeId
+    existing_eid = await find_user_by_employeeId(employeeId)
+    if existing_eid:
+        raise HTTPException(status_code=400, detail="Employee ID already exists")
+
+    # Upload image to Cloudinary (optional)
+    photo_url = None
+    if file and file.filename:   # <-- Additional check!
+        file_bytes = await file.read()
+        upload_res = await upload_file(
+            file_bytes,
+            file.filename,
+            folder="profile_photos"
+        )
+        photo_url = upload_res["secure_url"]
+
+
+    user_doc = {
+        "email": email,
+        "employeeId": employeeId,
+        "password": hash_password(password),
+        "phone": phone,
+        "name": name,
+        "designation": designation,
+        "profile": {"photo": photo_url}
+    }
+
+    inserted_id = await create_user(user_doc)
+
+    return {"success": True, "message": "Account created", "userId": inserted_id}
+
+
+@app.post("/auth/login")
+async def login(response: Response,
+                email: str = Form(...),
+                employeeId: str = Form(...),
+                password: str = Form(...)):
+    
+    user = await find_user_by_email(email)
+    if not user:
+        raise HTTPException(status_code=400, detail="Incorrect credentials")
+
+    if user["employeeId"] != employeeId:
+        raise HTTPException(status_code=400, detail="Employee ID mismatch")
+
+    if not verify_password(password, user["password"]):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    token = create_access_token({"user_id": str(user["_id"])})
+
+    response.set_cookie(key="token", value=token, httponly=True, samesite="Strict", max_age=86400)
+
+    return {
+        "success": True,
+        "message": f"Welcome {user['email']}",
+        "user": {
+            "_id": str(user["_id"]),
+            "email": user["email"],
+            "employeeId": user["employeeId"],
+            "phone": user.get("phone"),
+            "profile": user.get("profile", {})
+        }
+    }
+
+
+@app.get("/auth/me")
+async def get_me(payload=Depends(get_current_user)):
+    user_id = payload["user_id"]
+    user = await find_user_by_id(user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "success": True,
+        "user": {
+            "_id": str(user["_id"]),
+            "email": user["email"],
+            "employeeId": user["employeeId"],
+            "phone": user.get("phone"),
+            "profile": user.get("profile", {})
+        }
+    }
+
+
+@app.get("/auth/logout")
+async def logout(response: Response):
+    response.delete_cookie("token")
+    return {"success": True, "message": "Logged out"}
