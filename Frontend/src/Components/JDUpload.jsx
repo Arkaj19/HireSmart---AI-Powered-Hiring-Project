@@ -225,7 +225,7 @@ function JDUpload({ onUpload }) {
   return (
     <div className="relative">
       {/* Gradient Background Card */}
-      <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
+      <div className="bg-linear-to-br from-blue-50 via-white to-indigo-50 rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
         <div className="p-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-blue-600 rounded-lg">
@@ -249,7 +249,7 @@ function JDUpload({ onUpload }) {
             onClick={() => document.getElementById("fileInput").click()}
           >
             {/* Animated Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
             
             <input
               id="fileInput"
@@ -310,7 +310,7 @@ function JDUpload({ onUpload }) {
               className={`relative px-8 py-3 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg ${
                 isUploading
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:scale-105 active:scale-95"
+                  : "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:scale-105 active:scale-95"
               }`}
             >
               {isUploading ? (
@@ -330,7 +330,7 @@ function JDUpload({ onUpload }) {
 
         {/* Modern Preview Section */}
         {preview && (
-          <div className="border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white p-8">
+          <div className="border-t border-gray-200 bg-linear-to-br from-gray-50 to-white p-8">
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle2 className="w-5 h-5 text-green-600" />
               <h3 className="text-lg font-bold text-gray-900">

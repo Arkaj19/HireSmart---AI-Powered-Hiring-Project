@@ -12,14 +12,14 @@ function Header({ activeTab, setActiveTab }) {
   };
 
   return (
-    <div className="bg-gray-900 px-8 py-6 shadow-md justify-between">
-      <div className="flex justify-between items-center">
+    <div className="bg-gray-900 px-8 py-4 shadow-md">
+      <div className="flex items-center justify-between">
         {/* Left Section: Logo + App Info */}
         <div className="flex flex-col">
           <img
             src="gyansys-logo-black.png"
             alt="logo"
-            className="w-60 h-auto brightness-0 invert mb-3"
+            className="w-60 h-auto brightness-0 invert mb-2"
           />
           <div>
             <h1 className="text-2xl font-semibold text-white">
@@ -31,25 +31,26 @@ function Header({ activeTab, setActiveTab }) {
           </div>
         </div>
 
-        {/* Right Section: Navigation Tabs */}
-        <div className="flex items-center space-x-1 bg-gray-800 rounded-lg p-1">
-          {["TA Dashboard", "JD Upload"].map((tab) => (
-            <Button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all ${
-                activeTab === tab
-                  ? "bg-black text-white shadow-md"
-                  : "bg-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-              }`}
-            >
-              {tab}
-            </Button>
-          ))}
-        </div>
+        {/* Right Section: Tabs + Avatar grouped together */}
+        <div className="flex items-center gap-6">
+          {/* Navigation Tabs */}
+          <div className="flex items-center space-x-1 bg-gray-800 rounded-lg p-1">
+            {["Resume Upload", "TA Dashboard", "JD Upload"].map((tab) => (
+              <Button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all ${
+                  activeTab === tab
+                    ? "bg-black text-white shadow-md"
+                    : "bg-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                }`}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
 
-        {/* Avatar Section */}
-        <div>
+          {/* Avatar / User Menu */}
           <Popover>
             <PopoverTrigger asChild>
               <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -68,7 +69,7 @@ function Header({ activeTab, setActiveTab }) {
                   <User className="h-4 w-4" />
                   Profile
                 </button>
-                <button 
+                <button
                   onClick={handleLogout}
                   disabled={loading}
                   className="flex items-center gap-2 text-left px-3 py-2 hover:bg-gray-700 rounded transition-colors text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
