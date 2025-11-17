@@ -1,24 +1,3 @@
-// import {useState} from "react"
-// import Header from "./Components/Header.jsx";
-// import Body from "./Components/Body.jsx";
-// import Footer from "./Components/Footer.jsx";
-// import { Toaster } from "@/components/ui/toaster";
-
-// function App(){
-//   const [activeTab,setActiveTab]=useState("TA Dashboard")
-//   return (
-//     <div className="min-h-screen bg-gray-50 flex flex-col">
-//       <Header activeTab={activeTab} setActiveTab={setActiveTab}/>
-//       <div className="grow">
-//         <Body activeTab={activeTab} />
-//       </div>
-//       <Footer />
-//       <Toaster />
-//     </div>
-//   )
-// }
-
-// export default App;
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Header from "./Components/Header.jsx";
@@ -45,9 +24,16 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-              <Body activeTab={activeTab} />
-              <Footer />
+              {/*Layout wrapper: full height + column */}
+              <div className="min-h-screen flex flex-col ">
+                <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+                {/* main content grows and pushes footer down */}
+                <main>
+                  <Body activeTab={activeTab} />
+                </main>
+                <Footer />
+              </div>
+
               <Toaster />
             </ProtectedRoute>
           }
