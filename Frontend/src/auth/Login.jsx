@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 
-import Header from "@/Components/Header";
-import Footer from "@/Components/Footer";
+// import Header from "@/Components/Header";
+import Footer from "@/Components/common/Footer";
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,16 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-100 to-neutral-200 flex flex-col">
-      <Header />
+      {/* <Header /> */}
+
+      {/* ⭐ TOP LOGO SECTION ⭐ */}
+      <div className="w-full flex justify-center mt-10 mb-4">
+        <img 
+          src="/gyansys-logo-black.png" 
+          alt="Company Logo" 
+          className="h-16 object-contain opacity-90"
+        />
+      </div>
 
       <div className="flex justify-center items-center flex-1 px-4">
         <Card className="w-full max-w-md bg-white border-0 shadow-xl rounded-2xl overflow-hidden">
@@ -53,9 +62,9 @@ export default function Login() {
             <CardTitle className="text-3xl font-bold text-black">
               Sign In
             </CardTitle>
-            <p className="text-neutral-600 text-sm mt-2">
+            {/* <p className="text-neutral-600 text-sm mt-2">
               Access your dashboard and continue your journey
-            </p>
+            </p> */}
           </CardHeader>
 
           {/* FORM */}

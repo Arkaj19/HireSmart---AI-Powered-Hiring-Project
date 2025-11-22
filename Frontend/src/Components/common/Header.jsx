@@ -3,8 +3,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function Header({ activeTab, setActiveTab }) {
+  const navigate = useNavigate();
   const { logout, loading } = useAuth();
 
   const handleLogout = async () => {
@@ -39,11 +41,10 @@ function Header({ activeTab, setActiveTab }) {
               <Button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all ${
-                  activeTab === tab
+                className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all ${activeTab === tab
                     ? "bg-black text-white shadow-md"
                     : "bg-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                }`}
+                  }`}
               >
                 {tab}
               </Button>
@@ -65,7 +66,9 @@ function Header({ activeTab, setActiveTab }) {
 
             <PopoverContent className="w-48 bg-gray-800 text-white border border-gray-700 p-2">
               <div className="flex flex-col space-y-1">
-                <button className="flex items-center gap-2 text-left px-3 py-2 hover:bg-gray-700 rounded transition-colors">
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="flex items-center gap-2 text-left px-3 py-2 hover:bg-gray-700 rounded transition-colors">
                   <User className="h-4 w-4" />
                   Profile
                 </button>

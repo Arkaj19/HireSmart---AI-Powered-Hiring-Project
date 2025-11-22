@@ -1,5 +1,5 @@
-import JDUpload from "./JDUpload";
-import JobDescriptionTable from "./JobDescriptionTable";
+import JDUpload from "@/Components/jd/JDUpload";
+import JobDescriptionTable from "@/Components/jd/JobDescriptionTable";
 import useJD_Data from "@/hooks/useJD_Data";
 
 function JobDescriptionPanel() {

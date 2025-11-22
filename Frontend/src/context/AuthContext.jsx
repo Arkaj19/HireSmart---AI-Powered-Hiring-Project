@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getCurrentUser as apiGetMe, login as apiLogin, register as apiRegister, logout as apiLogout } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
 
 const AuthContext = createContext();
 
@@ -31,18 +32,41 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const res = await apiLogin({ email, employeeId, password });
+
       if (res?.success) {
+        const name = res?.user?.name || res?.user?.email || "User";
+
+        toast({
+          title: `Welcome, ${name}! 🎉`,
+          description: "You have logged in successfully."
+        });
+
         await fetchCurrentUser();
-        navigate("/"); // go to dashboard/home after login
+        navigate("/");
         return { success: true, message: res.message };
       }
+
+      toast({
+        title: "Login Failed",
+        description: res?.detail || "Incorrect credentials",
+        variant: "destructive"
+      });
+
       return { success: false, message: res?.detail || "Login failed" };
+
     } catch (err) {
+      toast({
+        title: "Error",
+        description: err?.message || "Login error",
+        variant: "destructive"
+      });
+
       return { success: false, message: err?.message || "Login error" };
     } finally {
       setLoading(false);
     }
   };
+
 
   const register = async (formData) => {
     setLoading(true);

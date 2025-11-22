@@ -28,11 +28,15 @@ app = FastAPI(lifespan=lifespan)
 # --- Middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # --- Repository ---
 repo = ApplicantRepository()
@@ -325,6 +329,8 @@ async def login(response: Response,
             "_id": str(user["_id"]),
             "email": user["email"],
             "employeeId": user["employeeId"],
+            "name": user.get("name"), #Added for name
+            "designation": user.get("designation"),
             "phone": user.get("phone"),
             "profile": user.get("profile", {})
         }
@@ -345,7 +351,9 @@ async def get_me(payload=Depends(get_current_user)):
             "_id": str(user["_id"]),
             "email": user["email"],
             "employeeId": user["employeeId"],
+            "name": user.get("name"), #Added 
             "phone": user.get("phone"),
+            "designation": user.get("designation"),
             "profile": user.get("profile", {})
         }
     }

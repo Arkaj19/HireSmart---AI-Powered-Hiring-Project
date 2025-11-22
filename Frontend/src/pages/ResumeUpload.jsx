@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Upload, FileText, CheckCircle2, Loader2 } from "lucide-react";
+import CandidatePanel from "./CandidatePanel";
+import { useCandidateData } from "@/hooks/useCandidateData"; 
+import ResumeTable from "@/Components/resume/ResumeTable";
 
 function ResumeUpload({ onUpload }) {
+
+  const { candidates, setCandidates } = useCandidateData();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -94,8 +99,9 @@ function ResumeUpload({ onUpload }) {
       const data = await res.json();
 
       console.log("Uploaded Resume data:", data);
+      setCandidates(prev => [...prev, data]);  
       setPreview(data); // adjust if backend returns a specific field
-      onUpload && onUpload(data);
+      // onUpload && onUpload(data);
 
       toast({
         title: "Upload Successful",
@@ -248,6 +254,11 @@ function ResumeUpload({ onUpload }) {
             {/* Add whatever fields from `preview` you want to show here */}
           </div>
         )}
+      </div>
+
+      {/* ADD THIS SECTION BELOW */}
+      <div className="mt-10">
+        <ResumeTable resumes={candidates} />
       </div>
     </div>
   );
