@@ -39,15 +39,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex justify-center gap-4 mt-8">
-          <button className="px-5 py-2 bg-black text-white rounded-xl shadow hover:bg-gray-800 transition">
-            Edit Profile
-          </button>
-          <button className="px-5 py-2 bg-gray-200 text-gray-700 rounded-xl shadow hover:bg-gray-300 transition">
-            Change Photo
-          </button>
-        </div>
       </div>
     </div>
   );

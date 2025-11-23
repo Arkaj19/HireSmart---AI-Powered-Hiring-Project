@@ -129,7 +129,9 @@ class JDRepository:
     async def add_jd(
         jd: JDExtractedData,
         jd_filename: str,
-        jd_url: str
+        jd_url: str,
+        jd_dept:str,
+        jd_experience_range:str
     ):
         """
         Add a parsed JD to MongoDB.
@@ -142,6 +144,8 @@ class JDRepository:
         # Prepare the document for insertion
         doc = {
             "jd": jd.model_dump(),
+            "jd_dept":jd_dept,
+            "jd_experience_range":jd_experience_range,
             "jd_filename": jd_filename,
             "jd_url": jd_url,
             "position_id": position_id,
@@ -164,6 +168,8 @@ class JDRepository:
             jd={
                 "id":doc["_id"],
                 "title":doc["jd"]["job_title"],
+                "jd_dept": doc.get("jd_dept"),
+                "jd_experience_range": doc.get("jd_experience_range"),
                 "position_id":doc["position_id"],
                 "jd_url":doc["jd_url"],
                 "status":"Active"

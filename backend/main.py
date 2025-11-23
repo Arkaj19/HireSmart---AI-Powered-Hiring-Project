@@ -113,7 +113,11 @@ async def upload_resume(
     
 # ---Upload JD ---
 @app.post("/uploadjd")
-async def upload_jd(file:UploadFile=File(...)):
+async def upload_jd(
+    file:UploadFile=File(...),
+    department: str = Form(...),
+    experience_range: str = Form(...)
+):
     try:
         allowed_extensions = (".pdf", ".docx")
         if not file.filename.lower().endswith(allowed_extensions):
@@ -134,17 +138,23 @@ async def upload_jd(file:UploadFile=File(...)):
         parsed_jd=await parse_jd(file_byte,file.filename)
         jd_url=upload_jd["secure_url"]
 
+        jd_dept=department
+        jd_experience_range=experience_range
+
         jd_id=await jd_repo.add_jd(
             jd=parsed_jd,
             jd_filename=file.filename,
             jd_url=jd_url,  # Pass the Cloudinary URL   
+            jd_dept=jd_dept,
+            jd_experience_range=jd_experience_range
         )
         return { 
             "message": "JD processed and stored successfully",
-            "jd_id": jd_id,
-            "jd_url": jd_url,
-            "parsed_jd": parsed_jd
-        }
+            "jd_name":parsed_jd.job_title,
+            "jd_dept":jd_dept,
+            "jd_experience_range":jd_experience_range,
+            "jd_url": jd_url
+        }   
     
 
     except Exception as e:

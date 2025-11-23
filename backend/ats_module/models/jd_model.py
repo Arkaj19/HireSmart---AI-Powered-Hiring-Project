@@ -31,10 +31,8 @@ class Responsibility(BaseModel):
 
 
 class ExperienceRequirement(BaseModel):
-    total_experience_years: Optional[float] = Field(None, description="Total years of experience required")
     relevant_experience_years: Optional[float] = Field(None, description="Relevant experience in the specified domain or technology")
     project_types: Optional[List[str]] = Field(default_factory=list, description="Types of projects mentioned (e.g., enterprise apps, ML models)")
-    scale_indicators: Optional[List[str]] = Field(default_factory=list, description="Complexity indicators such as team size, user volume, etc.")
     domain_experience: Optional[str] = Field(None, description="Industry or business domain experience required")
     measurable_indicators: Optional[List[str]] = Field(default_factory=list, description="Quantifiable experience metrics (e.g., 'Led 5+ teams')")
     score: Optional[int] = Field(None, description="Score out of 100 for this section")
@@ -49,9 +47,6 @@ class TaskCapability(BaseModel):
 
 class JDExtractedData(BaseModel):
     job_title: Optional[str] = Field(None, description="Extracted job title if available")
-    department: Optional[str] = Field(None, description="Department or functional area (if available)")
-    location: Optional[str] = Field(None, description="Job location (if mentioned)")
-    company_name: Optional[str] = Field(None, description="Name of the company or client")
     technical_skills: List[TechnicalSkill] = Field(default_factory=list, description="List of technical skills extracted")
     responsibilities: List[Responsibility] = Field(default_factory=list, description="List of key responsibilities and deliverables")
     experience_requirements: ExperienceRequirement = Field(default_factory=ExperienceRequirement, description="Experience-related details")

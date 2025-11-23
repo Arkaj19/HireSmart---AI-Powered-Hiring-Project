@@ -265,3 +265,4 @@ function ResumeUpload({ onUpload }) {
 }
 
 export default ResumeUpload;
+
