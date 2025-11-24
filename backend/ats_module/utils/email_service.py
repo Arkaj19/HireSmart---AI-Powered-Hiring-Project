@@ -36,13 +36,21 @@ async def send_rejection_email(to_email: str, candidate_name: str, position: str
     message.attach(MIMEText(body, "plain"))
 
     try:
+        # await aiosmtplib.send(
+        #     message,
+        #     hostname="smtp.gmail.com",
+        #     port=587,
+        #     start_tls=True,
+        #     username=os.getenv("EMAIL_ADDRESS"),
+        #     password=os.getenv("EMAIL_PASSWORD"),
+        # )
         await aiosmtplib.send(
             message,
             hostname="smtp.gmail.com",
-            port=587,
-            start_tls=True,
+            port=465,
             username=os.getenv("EMAIL_ADDRESS"),
             password=os.getenv("EMAIL_PASSWORD"),
+            use_tls=True,   # IMPORTANT
         )
         return True
     except Exception as e:
@@ -92,14 +100,23 @@ async def send_shortlist_email(to_email: str, candidate_name: str, position: str
     message.attach(MIMEText(body, "plain"))
 
     try:
+        # await aiosmtplib.send(
+        #     message,
+        #     hostname="smtp.gmail.com",
+        #     port=587,
+        #     start_tls=True,
+        #     username=os.getenv("EMAIL_ADDRESS"),
+        #     password=os.getenv("EMAIL_PASSWORD"),
+        # )
         await aiosmtplib.send(
             message,
             hostname="smtp.gmail.com",
-            port=587,
-            start_tls=True,
+            port=465,
             username=os.getenv("EMAIL_ADDRESS"),
             password=os.getenv("EMAIL_PASSWORD"),
+            use_tls=True,   # IMPORTANT
         )
+
         return True
     except Exception as e:
         print("❌ Error sending shortlist email:", e)

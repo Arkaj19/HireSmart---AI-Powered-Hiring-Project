@@ -20,7 +20,7 @@ function ResumeUpload({ onUpload }) {
  useEffect(() => {
   const fetchPositions = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/jds");
+      const res = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/jds");
       const data = await res.json();
 
       setPositions(data);
@@ -90,7 +90,7 @@ function ResumeUpload({ onUpload }) {
       // 👇 backend expects position_id (integer)
       formData.append("position_id", selectedPositionId);
 
-      const res = await fetch("http://127.0.0.1:8000/upload", {
+      const res = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/upload", {
         method: "POST",
         body: formData,
       });

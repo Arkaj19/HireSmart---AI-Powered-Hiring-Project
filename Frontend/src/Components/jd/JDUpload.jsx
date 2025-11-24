@@ -76,7 +76,7 @@ function JDUpload({ onUpload }) {
       if (location) formData.append("location", location);
 
       // ⚠️ adjust URL to match your backend route
-      const res = await fetch("http://127.0.0.1:8000/uploadjd", {
+      const res = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/uploadjd", {
         method: "POST",
         body: formData,
       });

@@ -5,7 +5,7 @@ export function useCandidateData() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/candidates");
+        const res = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/candidates");
         const data = await res.json();
         setCandidates(data);
       } catch (err) {

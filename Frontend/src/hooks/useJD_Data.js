@@ -6,7 +6,7 @@ function useJD_Data(){
     const fetchData = useCallback( async () => {
         setLoading(true);
         try{
-            const res = await fetch("http://127.0.0.1:8000/jds");
+            const res = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/jds");
             const data = await res.json();
             setJds(data);
         }
