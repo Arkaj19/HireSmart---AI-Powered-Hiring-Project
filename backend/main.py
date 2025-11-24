@@ -11,6 +11,7 @@ from ats_module.models.rejection_email_model import RejectionRequest
 from ats_module.models.shortlist_email_model import ShortlistRequest
 from fastapi import Response, Depends
 from typing import Optional
+from ats_module.models.testresult import TestResultModel
 
 # --- Startup / Shutdown events ---S
 @asynccontextmanager
@@ -373,3 +374,21 @@ async def get_me(payload=Depends(get_current_user)):
 async def logout(response: Response):
     response.delete_cookie("token")
     return {"success": True, "message": "Logged out"}
+
+@app.post("/update-test-score")
+async def update_test_score(payload: TestResultModel):
+    try:
+        updated = await repo.update_test_score(payload.email, payload.score, payload.status)
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Candidate not found")
+
+        return {
+            "success": True,
+            "message": f"Updated candidate with email {payload.email}",
+            "score": payload.score,
+            "status": payload.status
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

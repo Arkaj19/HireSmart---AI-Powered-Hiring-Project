@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { toast } from "@/components/ui/use-toast";
 import { useState } from 'react';
 
-export default function CandidateRow({ candidate, setCandidates }) {
+export default function CandidateRow({ candidate, setCandidates, updateTestStatus }) {
   const [isSending, setIsSending] = useState(false);
   const getActionButton = (status, rejectionSent) => {
     if (candidate.testSent) {
@@ -57,6 +57,21 @@ export default function CandidateRow({ candidate, setCandidates }) {
   };
 
   const getStatusBadge = (status) => {
+    if (testStatus === "Passed Test") {
+    return (
+      <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
+        Test Passed
+      </Badge>
+    );
+  }
+
+  if (testStatus === "Failed Test") {
+    return (
+      <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
+        Test Failed
+      </Badge>
+    );
+  }
     if (status === 'Shortlisted') {
       return (
         <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
@@ -241,7 +256,8 @@ const handleSendShortlist = async (candidate) => {
       {/* Status */}
       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
         <div className='flex items-center gap-2'>
-        {getStatusBadge(candidate.status)}
+        {/* {getStatusBadge(candidate.status)} */}
+        {getStatusBadge(candidate.status, candidate.test_status)}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent cursor-pointer'>

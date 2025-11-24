@@ -11,6 +11,16 @@ export default function CandidatePanel({ filterType = "all", showStatusCards = f
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
 
+    const updateTestStatus = (email, score, status) => {
+    setCandidates(prev =>
+        prev.map(c =>
+        c.email === email
+            ? { ...c, test_status: status, test_score: score }
+            : c
+        )
+    );
+    };
+
     // Base filter applied by page
     let baseFiltered = candidates;
 
@@ -64,6 +74,7 @@ export default function CandidatePanel({ filterType = "all", showStatusCards = f
                 <CandidateTable 
                     candidates={filteredCandidates} 
                     setCandidates={setCandidates} 
+                    updateTestStatus={updateTestStatus}
                 />
             </div>
         </div>

@@ -1,7 +1,7 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import CandidateRow from "./CandidateRow";
 
-export default function CandidateTable({ candidates, setCandidates }) {
+export default function CandidateTable({ candidates, setCandidates, updateTestStatus }) {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -35,7 +35,7 @@ export default function CandidateTable({ candidates, setCandidates }) {
         </TableHeader>
         <TableBody className="bg-white divide-y divide-gray-200">
           {candidates.map((candidate) => (
-            <CandidateRow key={candidate.id} candidate={candidate} setCandidates={setCandidates}/>
+            <CandidateRow key={candidate.id} candidate={candidate} setCandidates={setCandidates} updateTestStatus={updateTestStatus}/>
           ))}
         </TableBody>
       </Table>
