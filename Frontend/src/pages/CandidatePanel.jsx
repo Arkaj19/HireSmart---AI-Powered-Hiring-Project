@@ -40,6 +40,15 @@ export default function CandidatePanel({ filterType = "all", showStatusCards = f
                 <CardStatus total={total} shortlisted={shortlisted} rejected={rejected} />
             )}
 
+            <div className="mb-8">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+                Automated TA Dashboard
+            </h1>
+            <p className="text-gray-600 mt-1 text-lg">
+                Manage shortlisted candidates, send tests, and track progress.
+            </p>
+            </div>
+
             <div className="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div className="px-6 py-4 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">All Candidates</h2>
