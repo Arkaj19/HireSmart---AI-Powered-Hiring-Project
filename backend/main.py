@@ -31,7 +31,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -224,8 +225,7 @@ async def send_shortlist_email_api(request: ShortlistRequest):
         success = await send_shortlist_email(
             request.email, 
             request.name, 
-            request.position,
-            test_link
+            request.position
         )
         print(f"📧 Email send result: {success}")
 
@@ -330,7 +330,17 @@ async def login(response: Response,
 
     token = create_access_token({"user_id": str(user["_id"])})
 
-    response.set_cookie(key="token", value=token, httponly=True, samesite="Strict", max_age=86400)
+    # response.set_cookie(key="token", value=token, httponly=True, samesite="Strict", max_age=86400)
+    # ✅ Fix (for production with separate frontend):
+    response.set_cookie(
+        key="token", 
+        value=token, 
+        httponly=True, 
+        secure=True,  # ✅ Add this for HTTPS
+        samesite="None",  # ✅ Required for cross-site cookies
+        max_age=86400,
+        domain=".onrender.com"  # ✅ Optional: if both on same domain
+    )
 
     return {
         "success": True,
