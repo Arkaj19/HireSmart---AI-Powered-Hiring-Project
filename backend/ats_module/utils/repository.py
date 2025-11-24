@@ -93,7 +93,10 @@ class ApplicantRepository:
                 "testSent": doc.get("testSent", False),
                 "rejectionSent": doc.get("rejectionSent", False),
                 "match_score": match_score,
-                "reason": match_result.get("overall_comments", "")
+                "reason": match_result.get("overall_comments", ""),
+                "test_status": doc.get("test_status", None),
+                "test_score": doc.get("test_score", None)
+
             }
             candidates.append(candidate)
 
