@@ -7,8 +7,9 @@ import Body from "./Components/common/Body.jsx";
 import LoginPage from "./auth/Login.jsx";
 import SignupPage from "./auth/Signup.jsx";
 import ProtectedRoute from "./auth/ProtectedRoute.jsx";
-import { Toaster } from "@/components/ui/toaster.jsx";
+// import { Toaster } from "@/components/ui/toaster.jsx";
 import Profile from "./pages/Profile.jsx";
+import { Toaster } from "./Components/ui/toaster.jsx";
 
 function App() {
   const [activeTab, setActiveTab] = useState("TA Dashboard");

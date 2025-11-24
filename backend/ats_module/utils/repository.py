@@ -98,6 +98,23 @@ class ApplicantRepository:
             candidates.append(candidate)
 
         return candidates
+    
+    @staticmethod
+    async def update_test_score(email: str, score: int, status: str):
+        """
+        Update a candidate's test score + test status when Google Forms submits.
+        """
+        result = await applicants_collection.update_one(
+            {"resume.email": email},
+            {"$set": {
+                "test_score": score,
+                "test_status": status,
+                "testSent": True   # mark test as completed
+            }}
+        )
+        print("🔵 MongoDB Update Result:", result.modified_count)
+        return result.modified_count > 0
+
 
     @staticmethod
     async def mark_rejection_sent(candidate_id: str):

@@ -383,3 +383,28 @@ async def get_me(payload=Depends(get_current_user)):
 async def logout(response: Response):
     response.delete_cookie("token")
     return {"success": True, "message": "Logged out"}
+
+@app.post("/update-test-score")
+async def update_test_score(payload: TestResultModel):
+    try:
+        print("🔥 Incoming test result:", payload.dict())
+
+        # Update DB entry
+        updated = await repo.update_test_score(
+            email=payload.email,
+            score=payload.score,
+            status=payload.status
+        )
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Candidate not found")
+
+        return {
+            "success": True,
+            "message": f"Test results updated for {payload.email}",
+            "score": payload.score,
+            "status": payload.status
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
