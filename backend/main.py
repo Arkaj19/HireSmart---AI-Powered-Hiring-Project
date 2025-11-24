@@ -221,7 +221,7 @@ async def send_shortlist_email_api(request: ShortlistRequest):
         
         # Optional: Add test link logic here
         # test_link = "https://your-test-platform.com/test/12345"
-        
+        test_link = "https://forms.gle/QcNLqSopYNKnvGq27"
         success = await send_shortlist_email(
             request.email, 
             request.name, 
