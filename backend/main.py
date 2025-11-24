@@ -220,7 +220,6 @@ async def send_shortlist_email_api(request: ShortlistRequest):
         
         # Optional: Add test link logic here
         # test_link = "https://your-test-platform.com/test/12345"
-        test_link = None  # or generate/fetch from somewhere
         
         success = await send_shortlist_email(
             request.email, 
@@ -378,11 +377,14 @@ async def logout(response: Response):
 @app.post("/update-test-score")
 async def update_test_score(payload: TestResultModel):
     try:
+        print("🔥 Received payload from Google Apps Script:", payload)
         updated = await repo.update_test_score(payload.email, payload.score, payload.status)
 
         if not updated:
+            print("❌ Candidate not found for:", payload.email)
             raise HTTPException(status_code=404, detail="Candidate not found")
-
+        
+        print("✅ Mongo Updated Successfully")
         return {
             "success": True,
             "message": f"Updated candidate with email {payload.email}",

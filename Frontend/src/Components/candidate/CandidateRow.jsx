@@ -18,8 +18,8 @@ export default function CandidateRow({ candidate, setCandidates, updateTestStatu
         </Button>
       );
     }
-    if(rejectionSent){
-      return(
+    if (rejectionSent) {
+      return (
         <Button className="bg-[#fde8e8] text-[#b91c1c] font-semibold border border-[#fca5a5] cursor-not-allowed" disabled>
           <XCircle className="w-4 h-4 mr-2 text-[#b91c1c]" />
           Rejection Sent
@@ -27,21 +27,21 @@ export default function CandidateRow({ candidate, setCandidates, updateTestStatu
       )
     }
 
-  if (status === 'Shortlisted') {
-    return (
-      <Button 
-        className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-        onClick={() => handleSendShortlist(candidate)}
-        disabled={isSending}
-      >
-        <Send className="w-4 h-4 mr-2" />
-        {isSending ? "Sending..." : "Send Test"}
-      </Button>
-    );
+    if (status === 'Shortlisted') {
+      return (
+        <Button
+          className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+          onClick={() => handleSendShortlist(candidate)}
+          disabled={isSending}
+        >
+          <Send className="w-4 h-4 mr-2" />
+          {isSending ? "Sending..." : "Send Test"}
+        </Button>
+      );
     } else if (status === 'Rejected') {
       return (
         <Button className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-        onClick = {() => handleSendRejection(candidate)}>
+          onClick={() => handleSendRejection(candidate)}>
           <XCircle className="w-4 h-4 mr-2" />
           Send Rejection
         </Button>
@@ -57,21 +57,21 @@ export default function CandidateRow({ candidate, setCandidates, updateTestStatu
   };
 
   const getStatusBadge = (status) => {
-    if (testStatus === "Passed Test") {
-    return (
-      <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
-        Test Passed
-      </Badge>
-    );
-  }
+    if (status === "Passed Test") {
+      return (
+        <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
+          Test Passed
+        </Badge>
+      );
+    }
 
-  if (testStatus === "Failed Test") {
-    return (
-      <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
-        Test Failed
-      </Badge>
-    );
-  }
+    if (status === "Failed Test") {
+      return (
+        <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
+          Test Failed
+        </Badge>
+      );
+    }
     if (status === 'Shortlisted') {
       return (
         <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
@@ -79,18 +79,18 @@ export default function CandidateRow({ candidate, setCandidates, updateTestStatu
         </Badge>
       );
     }
-    return(
-        <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
-          {status}
-        </Badge>
-      );
-    };
+    return (
+      <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
+        {status}
+      </Badge>
+    );
+  };
 
-    const handleViewResumes = () => {
-    if(candidate.resumeUrl){
+  const handleViewResumes = () => {
+    if (candidate.resumeUrl) {
       window.open(candidate.resumeUrl, '_blank')
     }
-    else{
+    else {
       alert('Resume Not Found')
     }
   }
@@ -100,119 +100,119 @@ export default function CandidateRow({ candidate, setCandidates, updateTestStatu
   const accentColor = isRejected ? 'border-red-500' : 'border-gray-300';
   const HeaderIcon = isRejected ? AlertTriangle : Info;
 
-const handleSendRejection = async (candidate) => {
-  console.log("🔵 Starting handleSendRejection");
-  
-  try {
-    console.log("📤 Sending fetch request...");
-    
-    const response = await fetch("http://localhost:8000/send-rejection-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: candidate.email,
-        name: candidate.name,
-        position: candidate.position,
-        candidate_id: candidate.id,
-      }),
-    });
+  const handleSendRejection = async (candidate) => {
+    console.log("🔵 Starting handleSendRejection");
 
-    console.log("📥 Response received:", response.status, response.ok);
-    console.log("📥 Response headers:", response.headers);
+    try {
+      console.log("📤 Sending fetch request...");
 
-    const data = await response.json();
-    console.log("📦 Data parsed:", data);
+      const response = await fetch("http://localhost:8000/send-rejection-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: candidate.email,
+          name: candidate.name,
+          position: candidate.position,
+          candidate_id: candidate.id,
+        }),
+      });
 
-    if (!response.ok) {
-      console.log("❌ Response not OK, showing error toast");
+      console.log("📥 Response received:", response.status, response.ok);
+      console.log("📥 Response headers:", response.headers);
+
+      const data = await response.json();
+      console.log("📦 Data parsed:", data);
+
+      if (!response.ok) {
+        console.log("❌ Response not OK, showing error toast");
+        toast({
+          title: "Error",
+          description: data.detail || "Failed to send rejection email.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("✅ Success! Showing success toast");
       toast({
-        title: "Error",
-        description: data.detail || "Failed to send rejection email.",
+        title: "Rejection Email Sent",
+        description: `An email was successfully sent to ${candidate.name}.`,
+        variant: "success"
+      });
+
+      console.log("🔄 Updating candidates state");
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === candidate.id ? { ...c, rejectionSent: true } : c
+        )
+      );
+
+      console.log("✅ handleSendRejection completed successfully");
+
+    } catch (error) {
+      console.error("💥 CAUGHT ERROR:", error);
+      console.error("💥 Error type:", error.constructor.name);
+      console.error("💥 Error message:", error.message);
+      console.error("💥 Error stack:", error.stack);
+
+      toast({
+        title: "Server Error",
+        description: "Something went wrong while sending the email.",
         variant: "destructive",
       });
-      return;
     }
+  };
 
-    console.log("✅ Success! Showing success toast");
-    toast({
-      title: "Rejection Email Sent",
-      description: `An email was successfully sent to ${candidate.name}.`,
-      variant: "success"
-    });
+  const handleSendShortlist = async (candidate) => {
+    if (isSending) return;
 
-    console.log("🔄 Updating candidates state");
-    setCandidates((prev) =>
-      prev.map((c) =>
-        c.id === candidate.id ? { ...c, rejectionSent: true } : c
-      )
-    );
-    
-    console.log("✅ handleSendRejection completed successfully");
-    
-  } catch (error) {
-    console.error("💥 CAUGHT ERROR:", error);
-    console.error("💥 Error type:", error.constructor.name);
-    console.error("💥 Error message:", error.message);
-    console.error("💥 Error stack:", error.stack);
-    
-    toast({
-      title: "Server Error",
-      description: "Something went wrong while sending the email.",
-      variant: "destructive",
-    });
-  }
-};
+    setIsSending(true);
 
-const handleSendShortlist = async (candidate) => {
-  if (isSending) return;
-  
-  setIsSending(true);
-  
-  try {
-    const response = await fetch("http://localhost:8000/send-shortlist-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: candidate.email,
-        name: candidate.name,
-        position: candidate.position,
-        candidate_id: candidate.id,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:8000/send-shortlist-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: candidate.email,
+          name: candidate.name,
+          position: candidate.position,
+          candidate_id: candidate.id,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
+      if (!response.ok) {
+        toast({
+          title: "Error",
+          description: data.detail || "Failed to send shortlist email.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
-        title: "Error",
-        description: data.detail || "Failed to send shortlist email.",
+        title: "Shortlist Email Sent",
+        description: `A shortlist email was successfully sent to ${candidate.name}.`,
+      });
+
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === candidate.id ? { ...c, testSent: true } : c
+        )
+      );
+
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Server Error",
+        description: "Something went wrong while sending the email.",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsSending(false);
     }
-
-    toast({
-      title: "Shortlist Email Sent",
-      description: `A shortlist email was successfully sent to ${candidate.name}.`,
-    });
-
-    setCandidates((prev) =>
-      prev.map((c) =>
-        c.id === candidate.id ? { ...c, testSent: true } : c
-      )
-    );
-    
-  } catch (error) {
-    console.error("Error:", error);
-    toast({
-      title: "Server Error",
-      description: "Something went wrong while sending the email.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsSending(false);
-  }
-};
+  };
 
 
 
@@ -256,41 +256,41 @@ const handleSendShortlist = async (candidate) => {
       {/* Status */}
       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
         <div className='flex items-center gap-2'>
-        {/* {getStatusBadge(candidate.status)} */}
-        {getStatusBadge(candidate.status, candidate.test_status)}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent cursor-pointer'>
-              <Info className='w-4 h-4'/>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className={`w-80 p-0 border-t-4 ${accentColor} shadow-lg rounded-md`} 
-            align="start" // Align to start for better visibility
-          >
-            <div className='p-4'>
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-3">
-                <HeaderIcon className={`w-5 h-5 ${isRejected ? 'text-red-500' : 'text-blue-500'} shrink-0`} />
-                <h4 className="text-base font-semibold text-gray-900">
-                  {isRejected ? "Rejection Reason" : "Status Details"}
-                </h4>
-              </div>
+          {/* {getStatusBadge(candidate.status)} */}
+          {getStatusBadge(candidate.status, candidate.test_status)}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent cursor-pointer'>
+                <Info className='w-4 h-4' />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className={`w-80 p-0 border-t-4 ${accentColor} shadow-lg rounded-md`}
+              align="start" // Align to start for better visibility
+            >
+              <div className='p-4'>
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <HeaderIcon className={`w-5 h-5 ${isRejected ? 'text-red-500' : 'text-blue-500'} shrink-0`} />
+                  <h4 className="text-base font-semibold text-gray-900">
+                    {isRejected ? "Rejection Reason" : "Status Details"}
+                  </h4>
+                </div>
 
-              {/* Body */}
-              <div className="text-sm text-gray-700 leading-relaxed max-h-48 overflow-y-auto pr-2">
-                {candidate.reason ? candidate.reason : "No reason or detailed feedback has been provided for this status."}
+                {/* Body */}
+                <div className="text-sm text-gray-700 leading-relaxed max-h-48 overflow-y-auto pr-2">
+                  {candidate.reason ? candidate.reason : "No reason or detailed feedback has been provided for this status."}
+                </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
         </div>
       </TableCell>
 
       {/* Resume */}
       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="h-auto p-0 text-gray-700 hover:text-blue-600 hover:bg-transparent font-normal cursor-pointer"
           onClick={handleViewResumes}
           disabled={!candidate.resumeUrl}

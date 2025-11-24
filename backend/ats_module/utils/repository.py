@@ -122,23 +122,8 @@ class ApplicantRepository:
             {"$set": {"testSent": True}}
         )
         return result.modified_count > 0
-    
-    @staticmethod
-    async def find_candidate_by_email(email: str):
-        return await applicants_collection.find_one({"resume.email": email})
 
-
-    @staticmethod
-    async def update_test_score(email: str, score: int, status: str):
-        result = await applicants_collection.update_one(
-            {"resume.email": email},
-            {"$set": {
-                "test_score": score,
-                "test_status": status,
-                "testSent": True
-            }}
-        )
-        return result.modified_count > 0
+   
 
 class JDRepository:
 
