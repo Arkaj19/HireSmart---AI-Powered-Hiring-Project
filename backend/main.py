@@ -373,24 +373,3 @@ async def get_me(payload=Depends(get_current_user)):
 async def logout(response: Response):
     response.delete_cookie("token")
     return {"success": True, "message": "Logged out"}
-
-@app.post("/update-test-score")
-async def update_test_score(payload: TestResultModel):
-    try:
-        print("🔥 Received payload from Google Apps Script:", payload)
-        updated = await repo.update_test_score(payload.email, payload.score, payload.status)
-
-        if not updated:
-            print("❌ Candidate not found for:", payload.email)
-            raise HTTPException(status_code=404, detail="Candidate not found")
-        
-        print("✅ Mongo Updated Successfully")
-        return {
-            "success": True,
-            "message": f"Updated candidate with email {payload.email}",
-            "score": payload.score,
-            "status": payload.status
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
