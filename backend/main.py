@@ -225,7 +225,8 @@ async def send_shortlist_email_api(request: ShortlistRequest):
         success = await send_shortlist_email(
             request.email, 
             request.name, 
-            request.position
+            request.position,
+            test_link=test_link
         )
         print(f"📧 Email send result: {success}")
 
