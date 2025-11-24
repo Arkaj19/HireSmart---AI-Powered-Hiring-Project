@@ -32,7 +32,6 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -333,14 +332,13 @@ async def login(response: Response,
     # response.set_cookie(key="token", value=token, httponly=True, samesite="Strict", max_age=86400)
     # ✅ Fix (for production with separate frontend):
     response.set_cookie(
-        key="token", 
-        value=token, 
-        httponly=True, 
-        secure=True,  # ✅ Add this for HTTPS
-        samesite="None",  # ✅ Required for cross-site cookies
-        max_age=86400,
-        domain=".onrender.com"  # ✅ Optional: if both on same domain
+        key="token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="None",
     )
+
 
     return {
         "success": True,
