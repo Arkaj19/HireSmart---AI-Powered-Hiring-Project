@@ -1,21 +1,23 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export function useCandidateData() {
-  const[candidates,setCandidates]=useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/candidates");
-        const data = await res.json();
-        setCandidates(data);
-      } catch (err) {
-        console.error("Error fetching candidates:", err);
-      }
-    };
+  const [candidates, setCandidates] = useState([]);
 
-    fetchData();
+  const fetchCandidates = useCallback(async () => {
+    try {
+      const res = await fetch(
+        "https://hiresmart-ai-powered-hiring-project.onrender.com/candidates"
+      );
+      const data = await res.json();
+      setCandidates(data);
+    } catch (err) {
+      console.error("Error fetching candidates:", err);
+    }
   }, []);
 
-  // return { candidates };
-  return { candidates, setCandidates };
+  useEffect(() => {
+    fetchCandidates();
+  }, [fetchCandidates]);
+
+  return { candidates, setCandidates, refreshCandidates: fetchCandidates };
 }

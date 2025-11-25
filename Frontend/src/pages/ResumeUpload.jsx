@@ -9,7 +9,9 @@ import CardStatus from "@/Components/candidate/CardStatus";
 
 function ResumeUpload({ onUpload , filterType = "all"}) {
 
-  const { candidates, setCandidates } = useCandidateData();
+  // const { candidates, setCandidates } = useCandidateData();
+  const { candidates, setCandidates, refreshCandidates } = useCandidateData();
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -124,11 +126,10 @@ function ResumeUpload({ onUpload , filterType = "all"}) {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 
-      console.log("Uploaded Resume data:", data);
-      setCandidates(prev => [...prev, data]);  
-      setPreview(data); // adjust if backend returns a specific field
-      // onUpload && onUpload(data);
+      await refreshCandidates(); // Refresh candidate list after upload
+      setPreview(data);
 
+      // onUpload && onUpload(data);
       toast({
         title: "Upload Successful",
         description: "Resume uploaded and linked to the selected position.",
