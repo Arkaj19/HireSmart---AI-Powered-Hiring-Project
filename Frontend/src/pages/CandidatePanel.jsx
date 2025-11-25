@@ -64,12 +64,12 @@ export default function CandidatePanel({ filterType = "all", showStatusCards = f
                     <h2 className="text-lg font-semibold text-gray-900">All Candidates</h2>
                 </div>
 
-                <CandidateSearch
+                {/* <CandidateSearch
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     statusFilter={statusFilter}
                     setStatusFilter={setStatusFilter}
-                />
+                /> */}
 
                 <CandidateTable 
                     candidates={filteredCandidates} 
