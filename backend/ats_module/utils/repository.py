@@ -56,7 +56,9 @@ class ApplicantRepository:
             "match_result": match_result.model_dump() if match_result else {},
             "resumeFileUrl": resume_url,  # Fixed variable name
             "testSent": False,
-            "rejectionSent": False
+            "rejectionSent": False,
+            # NEW FIELD for interview
+            "l1InterviewScheduled": False
         }
         result = await applicants_collection.insert_one(doc)
         return str(result.inserted_id)
@@ -95,7 +97,9 @@ class ApplicantRepository:
                 "match_score": match_score,
                 "reason": match_result.get("overall_comments", ""),
                 "test_status": doc.get("test_status", None),
-                "test_score": doc.get("test_score", None)
+                "test_score": doc.get("test_score", None),
+                # NEW FIELD (defaults False for old docs)
+                "l1InterviewScheduled": doc.get("l1InterviewScheduled", False),
 
             }
             candidates.append(candidate)

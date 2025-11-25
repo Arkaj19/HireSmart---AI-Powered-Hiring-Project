@@ -1,33 +1,75 @@
-// import { Send, XCircle, FileText, AlertTriangle } from 'lucide-react';
+// import { Send, XCircle, FileText, AlertTriangle, Info } from "lucide-react";
 // import { Button } from "@/components/ui/button";
 // import { Badge } from "@/components/ui/badge";
-// import { Info } from "lucide-react"
 // import { TableCell, TableRow } from "@/components/ui/table";
-// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
 // import { toast } from "@/components/ui/use-toast";
-// import { useState } from 'react';
+// import { useState } from "react";
 
-// export default function CandidateRow({ candidate, setCandidates, updateTestStatus }) {
+// export default function CandidateRow({
+//   candidate,
+//   setCandidates,
+//   updateTestStatus,
+// }) {
 //   const [isSending, setIsSending] = useState(false);
-//   const getActionButton = (status, rejectionSent) => {
+
+//   // ------------------ Action Button ------------------ //
+//   const getActionButton = () => {
+//     // If test result already available
+//     if (candidate.test_status === "Passed Test") {
+//       return (
+//         <Button
+//           className="bg-[#d1fae5] text-[#065f46] font-semibold border border-[#6ee7b7]"
+//           disabled
+//         >
+//           Test Passed
+//         </Button>
+//       );
+//     }
+
+//     if (candidate.test_status === "Failed Test") {
+//       return (
+//         <Button
+//           className="bg-[#fee2e2] text-[#991b1b] font-semibold border border-[#fca5a5]"
+//           disabled
+//         >
+//           Test Failed
+//         </Button>
+//       );
+//     }
+
+//     // After sending email but before test submission
 //     if (candidate.testSent) {
 //       return (
-//         <Button className="bg-[#caf0f8] text-[#0077b6] font-semibold cursor-not-allowed border border-[#90e0ef]" disabled>
+//         <Button
+//           className="bg-[#caf0f8] text-[#0077b6] font-semibold cursor-not-allowed border border-[#90e0ef]"
+//           disabled
+//         >
 //           <Send className="w-4 h-4 mr-2 text-[#0077b6]" />
 //           Test Sent
 //         </Button>
 //       );
 //     }
-//     if (rejectionSent) {
+
+//     // Rejection already sent
+//     if (candidate.rejectionSent) {
 //       return (
-//         <Button className="bg-[#fde8e8] text-[#b91c1c] font-semibold border border-[#fca5a5] cursor-not-allowed" disabled>
+//         <Button
+//           className="bg-[#fde8e8] text-[#b91c1c] font-semibold border border-[#fca5a5] cursor-not-allowed"
+//           disabled
+//         >
 //           <XCircle className="w-4 h-4 mr-2 text-[#b91c1c]" />
 //           Rejection Sent
 //         </Button>
-//       )
+//       );
 //     }
 
-//     if (status === 'Shortlisted') {
+//     // Show Shortlist Button
+//     if (candidate.status === "Shortlisted") {
 //       return (
 //         <Button
 //           className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
@@ -38,147 +80,58 @@
 //           {isSending ? "Sending..." : "Send Test"}
 //         </Button>
 //       );
-//     } else if (status === 'Rejected') {
-//       return (
-//         <Button className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-//           onClick={() => handleSendRejection(candidate)}>
-//           <XCircle className="w-4 h-4 mr-2" />
-//           Send Rejection
-//         </Button>
-//       );
 //     }
-//     // For "Sent" status
-//     return (
-//       <Button className="bg-blue-300 hover:bg-blue-400 text-white cursor-pointer" disabled>
-//         <Send className="w-4 h-4 mr-2" />
-//         Sent
-//       </Button>
-//     );
+
+//     return null;
 //   };
 
-//   const getStatusBadge = (status) => {
-//     if (status === "Passed Test") {
+//   // ------------------ Status Badge ------------------ //
+//   const getStatusBadge = () => {
+//     if (candidate.status === "Shortlisted") {
 //       return (
-//         <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
-//           Test Passed
+//         <Badge className="bg-green-100 text-green-800 font-semibold">
+//           Shortlisted
+//         </Badge>
+//       );
+//     }
+//     if (candidate.status === "Rejected") {
+//       return (
+//         <Badge className="bg-red-100 text-red-800 font-semibold">
+//           Rejected
 //         </Badge>
 //       );
 //     }
 
-//     if (status === "Failed Test") {
-//       return (
-//         <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
-//           Test Failed
-//         </Badge>
-//       );
-//     }
-//     if (status === 'Shortlisted') {
-//       return (
-//         <Badge className="bg-green-100 hover:bg-green-100 text-green-800 font-semibold">
-//           {status}
-//         </Badge>
-//       );
-//     }
 //     return (
-//       <Badge className="bg-red-100 hover:bg-red-100 text-red-800 font-semibold">
-//         {status}
+//       <Badge className="bg-gray-200 text-gray-800 font-semibold">
+//         {candidate.status}
 //       </Badge>
 //     );
 //   };
 
+//   // ------------------ Button Handlers ------------------ //
 //   const handleViewResumes = () => {
-//     if (candidate.resumeUrl) {
-//       window.open(candidate.resumeUrl, '_blank')
-//     }
-//     else {
-//       alert('Resume Not Found')
-//     }
-//   }
-
-//   // Determine popover style based on status (e.g., a rejected candidate)
-//   const isRejected = candidate.status === 'Rejected';
-//   const accentColor = isRejected ? 'border-red-500' : 'border-gray-300';
-//   const HeaderIcon = isRejected ? AlertTriangle : Info;
-
-//   const handleSendRejection = async (candidate) => {
-//     console.log("🔵 Starting handleSendRejection");
-
-//     try {
-//       console.log("📤 Sending fetch request...");
-
-//       const response = await fetch("http://https://hiresmart-ai-powered-hiring-project.onrender.com/send-rejection-email", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           email: candidate.email,
-//           name: candidate.name,
-//           position: candidate.position,
-//           candidate_id: candidate.id,
-//         }),
-//       });
-
-//       console.log("📥 Response received:", response.status, response.ok);
-//       console.log("📥 Response headers:", response.headers);
-
-//       const data = await response.json();
-//       console.log("📦 Data parsed:", data);
-
-//       if (!response.ok) {
-//         console.log("❌ Response not OK, showing error toast");
-//         toast({
-//           title: "Error",
-//           description: data.detail || "Failed to send rejection email.",
-//           variant: "destructive",
-//         });
-//         return;
-//       }
-
-//       console.log("✅ Success! Showing success toast");
-//       toast({
-//         title: "Rejection Email Sent",
-//         description: `An email was successfully sent to ${candidate.name}.`,
-//         variant: "success"
-//       });
-
-//       console.log("🔄 Updating candidates state");
-//       setCandidates((prev) =>
-//         prev.map((c) =>
-//           c.id === candidate.id ? { ...c, rejectionSent: true } : c
-//         )
-//       );
-
-//       console.log("✅ handleSendRejection completed successfully");
-
-//     } catch (error) {
-//       console.error("💥 CAUGHT ERROR:", error);
-//       console.error("💥 Error type:", error.constructor.name);
-//       console.error("💥 Error message:", error.message);
-//       console.error("💥 Error stack:", error.stack);
-
-//       toast({
-//         title: "Server Error",
-//         description: "Something went wrong while sending the email.",
-//         variant: "destructive",
-//       });
-//     }
+//     if (candidate.resumeUrl) window.open(candidate.resumeUrl, "_blank");
 //   };
 
 //   const handleSendShortlist = async (candidate) => {
 //     if (isSending) return;
-
 //     setIsSending(true);
 
 //     try {
-//       const response = await fetch("https://hiresmart-ai-powered-hiring-project.onrender.com/send-shortlist-email", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           email: candidate.email,
-//           name: candidate.name,
-//           position: candidate.position,
-//           candidate_id: candidate.id,
-//         }),
-//       });
+//       const response = await fetch(
+//         "https://hiresmart-ai-powered-hiring-project.onrender.com/send-shortlist-email",
+//         {
+//           method: "POST",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify({
+//             email: candidate.email,
+//             name: candidate.name,
+//             position: candidate.position,
+//             candidate_id: candidate.id,
+//           }),
+//         }
+//       );
 
 //       const data = await response.json();
 
@@ -197,13 +150,9 @@
 //       });
 
 //       setCandidates((prev) =>
-//         prev.map((c) =>
-//           c.id === candidate.id ? { ...c, testSent: true } : c
-//         )
+//         prev.map((c) => (c.id === candidate.id ? { ...c, testSent: true } : c))
 //       );
-
 //     } catch (error) {
-//       console.error("Error:", error);
 //       toast({
 //         title: "Server Error",
 //         description: "Something went wrong while sending the email.",
@@ -215,100 +164,33 @@
 //   };
 
 //   return (
-//     <TableRow className="hover:bg-gray-50 transition-colors">
-//       {/* Name */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         <div className="text-sm font-medium text-gray-900">
-//           {candidate.name}
-//         </div>
+//     <TableRow className="hover:bg-gray-50">
+//       <TableCell className="px-6 py-5">{candidate.name}</TableCell>
+//       <TableCell className="px-6 py-5">{candidate.email}</TableCell>
+//       <TableCell className="px-6 py-5">{candidate.position}</TableCell>
+//       <TableCell className="px-6 py-5">{candidate.experience}</TableCell>
+//       <TableCell className="px-6 py-5">{candidate.appliedDate}</TableCell>
+
+//       <TableCell className="px-6 py-5">
+//         <div className="flex items-center gap-2">{getStatusBadge()}</div>
 //       </TableCell>
 
-//       {/* Email */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         <div className="text-sm text-gray-600">
-//           {candidate.email}
-//         </div>
-//       </TableCell>
-
-//       {/* Position */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         <div className="text-sm text-gray-900">
-//           {candidate.position}
-//         </div>
-//       </TableCell>
-
-//       {/* Experience */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         <div className="text-sm text-gray-900">
-//           {candidate.experience}
-//         </div>
-//       </TableCell>
-
-//       {/* Applied Date */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         <div className="text-sm text-gray-900">
-//           {candidate.appliedDate}
-//         </div>
-//       </TableCell>
-
-//       {/* Status */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         <div className='flex items-center gap-2'>
-//           {/* {getStatusBadge(candidate.status)} */}
-//           {getStatusBadge(candidate.status, candidate.test_status)}
-//           <Popover>
-//             <PopoverTrigger asChild>
-//               <Button variant="ghost" size="icon" className='h-auto w-auto p-0 text-gray-500 hover:text-gray-800 hover:bg-transparent cursor-pointer'>
-//                 <Info className='w-4 h-4' />
-//               </Button>
-//             </PopoverTrigger>
-//             <PopoverContent
-//               className={`w-80 p-0 border-t-4 ${accentColor} shadow-lg rounded-md`}
-//               align="start" // Align to start for better visibility
-//             >
-//               <div className='p-4'>
-//                 {/* Header */}
-//                 <div className="flex items-center gap-2 mb-3">
-//                   <HeaderIcon className={`w-5 h-5 ${isRejected ? 'text-red-500' : 'text-blue-500'} shrink-0`} />
-//                   <h4 className="text-base font-semibold text-gray-900">
-//                     {isRejected ? "Rejection Reason" : "Status Details"}
-//                   </h4>
-//                 </div>
-
-//                 {/* Body */}
-//                 <div className="text-sm text-gray-700 leading-relaxed max-h-48 overflow-y-auto pr-2">
-//                   {candidate.reason ? candidate.reason : "No reason or detailed feedback has been provided for this status."}
-//                 </div>
-//               </div>
-//             </PopoverContent>
-//           </Popover>
-//         </div>
-//       </TableCell>
-
-//       {/* Resume */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
+//       <TableCell className="px-6 py-5">
 //         <Button
 //           variant="ghost"
-//           className="h-auto p-0 text-gray-700 hover:text-blue-600 hover:bg-transparent font-normal cursor-pointer"
 //           onClick={handleViewResumes}
-//           disabled={!candidate.resumeUrl}
+//           className="text-gray-700"
 //         >
 //           <FileText className="w-4 h-4 mr-2" />
 //           View
 //         </Button>
 //       </TableCell>
 
-//       {/* Actions */}
-//       <TableCell className="px-6 py-5 whitespace-nowrap align-middle">
-//         {getActionButton(candidate.status, candidate.rejectionSent)}
-//       </TableCell>
+//       <TableCell className="px-6 py-5">{getActionButton()}</TableCell>
 //     </TableRow>
 //   );
 // }
-
-//// *I************************ 2nd code *********************************
-
-import { Send, XCircle, FileText, AlertTriangle, Info } from "lucide-react";
+import { Send, XCircle, FileText, AlertTriangle, Info, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -326,8 +208,9 @@ export default function CandidateRow({
   updateTestStatus,
 }) {
   const [isSending, setIsSending] = useState(false);
+  const [isSchedulingL1, setIsSchedulingL1] = useState(false);
 
-  // ------------------ Action Button ------------------ //
+  // ------------------ Action Button (Test) ------------------ //
   const getActionButton = () => {
     // If test result already available
     if (candidate.test_status === "Passed Test") {
@@ -393,6 +276,86 @@ export default function CandidateRow({
     }
 
     return null;
+  };
+
+  // ------------------ L1 Interview Column ------------------ //
+  const handleScheduleL1 = async () => {
+    // Guard conditions
+    if (
+      isSchedulingL1 ||
+      candidate.l1InterviewScheduled ||
+      candidate.test_status !== "Passed Test"
+    ) {
+      return;
+    }
+
+    setIsSchedulingL1(true);
+
+    try {
+      // 🔹 For now: just update UI state.
+      // Later you can plug in an API like:
+      // await fetch("/schedule-l1", { method: "POST", body: JSON.stringify({ candidate_id: candidate.id }) });
+
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === candidate.id
+            ? { ...c, l1InterviewScheduled: true }
+            : c
+        )
+      );
+
+      toast({
+        title: "L1 Interview Scheduled",
+        description: `L1 interview has been marked as scheduled for ${candidate.name}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong while scheduling the L1 interview.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSchedulingL1(false);
+    }
+  };
+
+  const getL1InterviewCell = () => {
+    // Already scheduled
+    if (candidate.l1InterviewScheduled) {
+      return (
+        <Badge className="bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1">
+          <Calendar className="w-3 h-3" />
+          L1 Scheduled
+        </Badge>
+      );
+    }
+
+    // Test not passed yet → show disabled state
+    if (candidate.test_status !== "Passed Test") {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled
+          className="cursor-not-allowed text-gray-500 border-dashed"
+        >
+          L1 Not Eligible
+        </Button>
+      );
+    }
+
+    // Test passed → allow scheduling
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleScheduleL1}
+        disabled={isSchedulingL1}
+      >
+        <Calendar className="w-4 h-4 mr-2" />
+        {isSchedulingL1 ? "Scheduling..." : "Schedule L1"}
+      </Button>
+    );
   };
 
   // ------------------ Status Badge ------------------ //
@@ -496,7 +459,12 @@ export default function CandidateRow({
         </Button>
       </TableCell>
 
+      {/* Test-related action button */}
       <TableCell className="px-6 py-5">{getActionButton()}</TableCell>
+
+      {/* NEW: L1 Interview column */}
+      <TableCell className="px-6 py-5">{getL1InterviewCell()}</TableCell>
     </TableRow>
   );
 }
+

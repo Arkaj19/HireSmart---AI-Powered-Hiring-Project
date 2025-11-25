@@ -66,6 +66,7 @@ export default function CandidateTable({ candidates, setCandidates }) {
             <TableHead>Selection Status</TableHead>
             <TableHead>Resume</TableHead>
             <TableHead>Action Status</TableHead>
+            <TableHead>L1 Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
