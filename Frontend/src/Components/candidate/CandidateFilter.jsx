@@ -12,7 +12,7 @@ export default function CandidateFilter({ statusFilter, setStatusFilter }) {
                 <option value="">All Candidates</option>
                 <option value="Shortlisted">Shortlisted</option>
                 <option value="Rejected">Rejected</option>
-                <option value="Sent">Sent</option>
+                {/* <option value="Sent">Sent</option> */}
             </select>
             {/* Custom dropdown arrow */}
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

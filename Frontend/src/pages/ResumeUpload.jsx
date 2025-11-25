@@ -3,9 +3,11 @@ import { toast } from "@/components/ui/use-toast";
 import { Upload, FileText, CheckCircle2, Loader2 } from "lucide-react";
 import CandidatePanel from "./CandidatePanel";
 import { useCandidateData } from "@/hooks/useCandidateData"; 
+import CandidateSearch from "@/Components/candidate/CandidateSearch";
 import ResumeTable from "@/Components/resume/ResumeTable";
+import CardStatus from "@/Components/candidate/CardStatus";
 
-function ResumeUpload({ onUpload }) {
+function ResumeUpload({ onUpload , filterType = "all"}) {
 
   const { candidates, setCandidates } = useCandidateData();
   const [selectedFile, setSelectedFile] = useState(null);
@@ -15,6 +17,30 @@ function ResumeUpload({ onUpload }) {
 
   const [positions, setPositions] = useState([]);
   const [selectedPositionId, setSelectedPositionId] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Base filter applied by page
+    let baseFiltered = candidates;
+
+    if (filterType === "shortlisted") {
+        baseFiltered = candidates.filter(c => c.status === "Shortlisted");
+    }
+
+    // Additional Search + Dropdown Filter
+    const filteredCandidates = baseFiltered.filter((c) => {
+        const matchStatus = statusFilter === "" || 
+            c.status?.toLowerCase() === statusFilter.toLowerCase();
+
+        const matchSearch = c.name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchSearch && matchStatus;
+    });
+
+    const total = baseFiltered.length;
+    const shortlisted = baseFiltered.filter(c => c.status === "Shortlisted").length;
+    const rejected = baseFiltered.filter(c => c.status === "Rejected").length;
+
 
   // --- Fetch Positions (by JD / job_title) ---
  useEffect(() => {
@@ -258,7 +284,18 @@ function ResumeUpload({ onUpload }) {
 
       {/* ADD THIS SECTION BELOW */}
       <div className="mt-10">
-        <ResumeTable resumes={candidates} />
+
+      {/* {showStatusCards && (
+          <CardStatus total={total} shortlisted={shortlisted} rejected={rejected} />
+      )} */}
+        
+      <CandidateSearch
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+      />
+        <ResumeTable resumes={filteredCandidates} />
       </div>
     </div>
   );
