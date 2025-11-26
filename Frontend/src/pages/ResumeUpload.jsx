@@ -227,7 +227,7 @@ function ResumeUpload({ onUpload , filterType = "all"}) {
           {/* Position dropdown */}
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Position
+              Job Opportunities
             </label>
            <select
                 value={selectedPositionId}

@@ -16,12 +16,12 @@ export default function CandidateTable({ candidates, setCandidates }) {
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Position</TableHead>
-            <TableHead>Experience</TableHead>
+            <TableHead>Relevant Experience</TableHead>
             <TableHead>Applied Date</TableHead>
             <TableHead>Selection Status</TableHead>
             <TableHead>Resume</TableHead>
             <TableHead>Action Status</TableHead>
-            <TableHead>L1 Status</TableHead>
+            <TableHead>Hiring Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
