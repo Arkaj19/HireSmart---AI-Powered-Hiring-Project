@@ -12,7 +12,7 @@ function JDFilter({
       {/* Department Filter */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Department
+          Practise
         </label>
         <select
           value={deptFilter}

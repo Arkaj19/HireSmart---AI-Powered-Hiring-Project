@@ -10,7 +10,7 @@ export default function ResumeTable({ resumes }) {
             <TableHead className="px-6 py-3">Name</TableHead>
             <TableHead className="px-6 py-3">Email</TableHead>
             <TableHead className="px-6 py-3">Position</TableHead>
-            <TableHead className="px-6 py-3">Experience</TableHead>
+            <TableHead className="px-6 py-3">Relevant Experience</TableHead>
             <TableHead className="px-6 py-3">Applied Date</TableHead>
             <TableHead className="px-6 py-3">Selection Status</TableHead>
             <TableHead className="px-6 py-3">Resume</TableHead>
