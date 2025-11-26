@@ -12,14 +12,14 @@ function JDFilter({
       {/* Department Filter */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Department
+          Practice
         </label>
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
           className="border rounded-lg px-3 py-2 text-sm min-w-[180px]"
         >
-          <option value="">All departments</option>
+          <option value="">All Practice</option>
           {departments.map((d) => (
             <option key={d} value={d}>
               {d}

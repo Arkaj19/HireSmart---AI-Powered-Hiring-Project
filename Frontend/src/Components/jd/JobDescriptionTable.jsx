@@ -26,7 +26,13 @@ function JobDescriptionTable({ jds }) {
                 Position ID
               </TableHead>
               <TableHead className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                Practice
+              </TableHead>
+              <TableHead className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                 Job Title
+              </TableHead>
+              <TableHead className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                Expirence Range
               </TableHead>
               <TableHead className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                 Document
