@@ -23,13 +23,21 @@ function JobDescriptionRow({ jd }) {
           {jd.position_id}
         </span>
       </TableCell>
-
+      <TableCell className="px-8 py-5">
+        <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+          {jd.jd_dept}
+        </span>
+      </TableCell>
       <TableCell className="px-8 py-5">
         <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
           {jd.title}
         </span>
       </TableCell>
-
+      <TableCell className="px-8 py-5">
+        <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+          {jd.jd_experience_range}
+        </span>
+      </TableCell>
       <TableCell className="px-8 py-5">
         <Button
           variant="ghost"

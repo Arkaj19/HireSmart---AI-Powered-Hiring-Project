@@ -196,7 +196,7 @@ function JDUpload({ onUpload }) {
               onChange={(e) => setDepartment(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 text-sm"
             >
-              <option value="">Select department</option>
+              <option value="">Select Practice</option>
               {departments.map((d) => (
                 <option key={d} value={d}>
                   {d}
